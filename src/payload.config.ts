@@ -7,6 +7,7 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { env } from './lib/env'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,17 +18,36 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    meta: {
+      titleSuffix: '– Pentox CMS',
+      description: 'Pentox Studio content management',
+      defaultOGImageType: 'off',
+      icons: [{ rel: 'icon', type: 'image/png', url: '/brand/favicon.png' }],
+    },
+    components: {
+      graphics: {
+        Logo: '/components/admin/Logo#Logo',
+        Icon: '/components/admin/Icon#Icon',
+      },
+    },
   },
   collections: [Users, Media],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: env.PAYLOAD_SECRET,
+  telemetry: false,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
+  upload: {
+    limits: { fileSize: 10_000_000 },
+  },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: env.DATABASE_URL,
     },
+    // Schema changes go through migrations (src/migrations), never auto-push.
+    push: false,
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
   plugins: [],

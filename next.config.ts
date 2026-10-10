@@ -7,10 +7,15 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Matches the old WordPress URLs (see capture/07-LOCKED-SCOPE.md §4).
+  trailingSlash: true,
   images: {
     localPatterns: [
       {
         pathname: '/api/media/file/**',
+      },
+      {
+        pathname: '/brand/**',
       },
     ],
   },

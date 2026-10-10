@@ -25,11 +25,16 @@ Copy-Item .env.example .env
 # 3. Install dependencies
 pnpm install
 
-# 4. Start the dev server
+# 4. Create the database tables (also enables the pgvector extension)
+pnpm migrate
+
+# 5. Start the dev server
 pnpm dev
 ```
 
-Open <http://localhost:3000/admin> and create your first admin user.
+Open <http://localhost:3000/admin/> and create your first admin user (the first account is always an Admin).
+
+The app validates `.env` at startup and tells you which variable is wrong. After changing collections, create a migration with `pnpm migrate:create <name>` and apply it with `pnpm migrate`; the schema is never auto-pushed.
 
 Local `DATABASE_URL`: `postgres://pentox:pentox_dev_pass@localhost:5432/pentox` (matches `docker-compose.yml`).
 
@@ -43,9 +48,14 @@ Local `DATABASE_URL`: `postgres://pentox:pentox_dev_pass@localhost:5432/pentox` 
 | `pnpm build`         | Production build                      |
 | `pnpm start`         | Serve the production build            |
 | `pnpm lint`          | ESLint                                |
+| `pnpm typecheck`     | `tsc --noEmit`                        |
+| `pnpm migrate`       | Apply pending DB migrations           |
+| `pnpm migrate:create <name>` | Create a migration from schema changes |
+| `pnpm migrate:status` | Show which migrations have run       |
 | `pnpm test:int`      | Vitest integration tests              |
 | `pnpm test:e2e`      | Playwright end-to-end tests           |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts`    |
+| `pnpm generate:importmap` | Regenerate the admin import map (after adding admin components) |
 
 ## Folder structure
 

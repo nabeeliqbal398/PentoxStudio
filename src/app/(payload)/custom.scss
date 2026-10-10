@@ -1,0 +1,50 @@
+// Pentox branding for the Payload admin. Payload's own styles live in a CSS layer,
+// so these unlayered rules win without !important.
+
+:root {
+  --pentox-navy: #1c244b;
+  --pentox-red: #dd2c33;
+}
+
+// Primary actions: navy, red on hover.
+.btn--style-primary:not(.btn--disabled) {
+  --bg-color: var(--pentox-navy);
+  --hover-bg: var(--pentox-red);
+  --color: #fff;
+  --hover-color: #fff;
+}
+
+// The logo is navy on transparent: give it a light plate so it stays readable in dark mode.
+.pentox-admin-logo {
+  display: inline-block;
+  max-width: 100%;
+
+  img {
+    display: block;
+    height: auto;
+    max-width: 100%;
+  }
+}
+
+[data-theme='dark'] .pentox-admin-logo {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.pentox-admin-icon img {
+  display: block;
+  border-radius: 6px;
+}
+
+// Login / first-user screen: navy page with the form on a card that follows the light/dark theme.
+.template-minimal {
+  background-color: var(--pentox-navy);
+
+  &__wrap {
+    background-color: var(--theme-bg);
+    border-radius: 12px;
+    box-shadow: 0 25px 40px -20px rgba(0, 0, 0, 0.5);
+    padding: 2.5rem;
+  }
+}

@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Brand tokens from capture/01-design-system.md and capture/07-LOCKED-SCOPE.md §2 */
+@theme {
+  --color-navy: #1c244b;
+  --color-brand: #dd2c33;
+  --color-brand-active: #ef1b21;
+  --color-accent: #467ff7;
+  --color-body: #4a4a4a;
+  --color-strong: #3b3b3b;
+  --color-muted: #71747b;
+  --color-line: #a8acb7;
+  --color-surface: #fafafa;
+  --color-surface-alt: #f5f5f5;
+  --color-form-bg: #f6f7fa;
+  --color-form-label: #0d1427;
+
+  --container-site: 72rem;
+}
+
+/* next/font injects --font-poppins / --font-inter on <html> (see layout.tsx). */
+@theme inline {
+  --font-heading: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-surface-alt);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
