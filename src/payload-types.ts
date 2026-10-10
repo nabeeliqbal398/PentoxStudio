@@ -67,18 +67,68 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
+    pages: Page;
+    services: Service;
+    'service-groups': ServiceGroup;
+    industries: Industry;
+    locations: Location;
+    posts: Post;
+    categories: Category;
+    tags: Tag;
+    authors: Author;
+    faqs: Faq;
+    portfolio: Portfolio;
+    'portfolio-categories': PortfolioCategory;
+    clients: Client;
+    testimonials: Testimonial;
+    reviews: Review;
+    badges: Badge;
+    packages: Package;
+    'estimator-rules': EstimatorRule;
+    leads: Lead;
+    subscribers: Subscriber;
+    campaigns: Campaign;
+    'chat-sessions': ChatSession;
     media: Media;
+    users: User;
+    redirects: Redirect;
+    'knowledge-chunks': KnowledgeChunk;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
+    'service-groups': ServiceGroupsSelect<false> | ServiceGroupsSelect<true>;
+    industries: IndustriesSelect<false> | IndustriesSelect<true>;
+    locations: LocationsSelect<false> | LocationsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
+    authors: AuthorsSelect<false> | AuthorsSelect<true>;
+    faqs: FaqsSelect<false> | FaqsSelect<true>;
+    portfolio: PortfolioSelect<false> | PortfolioSelect<true>;
+    'portfolio-categories': PortfolioCategoriesSelect<false> | PortfolioCategoriesSelect<true>;
+    clients: ClientsSelect<false> | ClientsSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    badges: BadgesSelect<false> | BadgesSelect<true>;
+    packages: PackagesSelect<false> | PackagesSelect<true>;
+    'estimator-rules': EstimatorRulesSelect<false> | EstimatorRulesSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
+    campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    'chat-sessions': ChatSessionsSelect<false> | ChatSessionsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
+    'knowledge-chunks': KnowledgeChunksSelect<false> | KnowledgeChunksSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -87,15 +137,35 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    home: Home;
+    stats: Stat;
+    'site-settings': SiteSetting;
+    header: Header;
+    footer: Footer;
+    'chatbot-settings': ChatbotSetting;
+  };
+  globalsSelect: {
+    home: HomeSelect<false> | HomeSelect<true>;
+    stats: StatsSelect<false> | StatsSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    header: HeaderSelect<false> | HeaderSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    'chatbot-settings': ChatbotSettingsSelect<false> | ChatbotSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -119,34 +189,52 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "pages".
  */
-export interface User {
+export interface Page {
   id: number;
-  name?: string | null;
+  title: string;
   /**
-   * Admin: everything. Editor: manage all content. Author: write own posts. The very first account is always created as Admin.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  roles: ('admin' | 'editor' | 'author')[];
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Short intro under the title.
+   */
+  excerpt?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -214,6 +302,1067 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Public URL path (automatic).
+   */
+  path?: string | null;
+  /**
+   * Mega-menu group.
+   */
+  group?: (number | null) | ServiceGroup;
+  /**
+   * Set only for sub-services (e.g. Local SEO → SEO).
+   */
+  parent?: (number | null) | Service;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  /**
+   * Drafted or placeholder content that the client still has to approve.
+   */
+  needsReview?: boolean | null;
+  reviewNote?: string | null;
+  /**
+   * Used on service cards, the mega menu and meta fallbacks.
+   */
+  shortDescription: string;
+  /**
+   * Card illustration.
+   */
+  cardImage?: (number | null) | Media;
+  hero?: {
+    /**
+     * Keyword H1. Falls back to the title.
+     */
+    heading?: string | null;
+    /**
+     * The problem this service solves.
+     */
+    intro?: string | null;
+    image?: (number | null) | Media;
+    /**
+     * Real, verifiable proof only. Leave empty to hide.
+     */
+    trustLine?: string | null;
+  };
+  deliverables?:
+    | {
+        title: string;
+        description?: string | null;
+        /**
+         * lucide-react icon name.
+         */
+        icon?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  approach?: {
+    heading?: string | null;
+    intro?: string | null;
+    /**
+     * Shown as numbered cards (01–06).
+     */
+    steps?:
+      | {
+          title: string;
+          description: string;
+          image?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * 1–2 case-study highlights. Hidden when empty.
+   */
+  results?: (number | Portfolio)[] | null;
+  tools?:
+    | {
+        name: string;
+        logo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  industries?: (number | Industry)[] | null;
+  whyChoose?: {
+    heading?: string | null;
+    /**
+     * No unverifiable claims (e.g. "24/7 support", guarantees).
+     */
+    items?:
+      | {
+          /**
+           * lucide-react icon name.
+           */
+          icon?: string | null;
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  cta?: {
+    heading?: string | null;
+    text?: string | null;
+    buttonLabel?: string | null;
+    buttonUrl?: string | null;
+    backgroundImage?: (number | null) | Media;
+  };
+  /**
+   * 6–8 recommended. Powers the FAQPage schema.
+   */
+  faqs?: (number | Faq)[] | null;
+  /**
+   * Optional long-form body (used by article-style service pages).
+   */
+  longform?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-groups".
+ */
+export interface ServiceGroup {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  description?: string | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio".
+ */
+export interface Portfolio {
+  id: number;
+  /**
+   * Real project name.
+   */
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  client?: (number | null) | Client;
+  /**
+   * Used for the portfolio filter pills.
+   */
+  services?: (number | Service)[] | null;
+  categories?: (number | PortfolioCategory)[] | null;
+  industries?: (number | Industry)[] | null;
+  featured?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  completedAt?: string | null;
+  summary: string;
+  heroImage?: (number | null) | Media;
+  /**
+   * Portrait card image (644×972 size is generated).
+   */
+  cardImage?: (number | null) | Media;
+  deliverables?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  challenge?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  solution?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Real, verifiable numbers only.
+   */
+  results?:
+    | {
+        /**
+         * e.g. +180%
+         */
+        value: string;
+        /**
+         * e.g. Organic traffic
+         */
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional YouTube link.
+   */
+  videoUrl?: string | null;
+  projectUrl?: string | null;
+  /**
+   * Only a real, verified testimonial.
+   */
+  testimonial?: (number | null) | Testimonial;
+  toolsUsed?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients".
+ */
+export interface Client {
+  id: number;
+  name: string;
+  logo?: (number | null) | Media;
+  website?: string | null;
+  /**
+   * Tick only when the client agreed to show their name/logo publicly.
+   */
+  permissionConfirmed?: boolean | null;
+  featured?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-categories".
+ */
+export interface PortfolioCategory {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "industries".
+ */
+export interface Industry {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  /**
+   * Drafted or placeholder content that the client still has to approve.
+   */
+  needsReview?: boolean | null;
+  reviewNote?: string | null;
+  /**
+   * Card text.
+   */
+  summary: string;
+  /**
+   * lucide-react icon name.
+   */
+  icon?: string | null;
+  hero?: {
+    heading?: string | null;
+    intro?: string | null;
+    image?: (number | null) | Media;
+  };
+  challenges?:
+    | {
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  recommendedServices?: (number | Service)[] | null;
+  faqs?: (number | Faq)[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  /**
+   * Plain text (also used as the FAQPage schema answer).
+   */
+  answer: string;
+  services?: (number | Service)[] | null;
+  industries?: (number | Industry)[] | null;
+  topic?: ('general' | 'pricing' | 'process' | 'service') | null;
+  showOnHome?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: number;
+  name: string;
+  role?: string | null;
+  company?: string | null;
+  quote: string;
+  avatar?: (number | null) | Media;
+  rating?: number | null;
+  source?: ('direct' | 'google' | 'clutch' | 'upwork' | 'linkedin' | 'other') | null;
+  /**
+   * Link to the original review/message.
+   */
+  sourceUrl?: string | null;
+  /**
+   * Tick only for a genuine testimonial you can show proof of. Unverified ones stay hidden.
+   */
+  verified?: boolean | null;
+  featured?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: number;
+  city: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  country?: string | null;
+  intro?: string | null;
+  /**
+   * Real local content only (thin or duplicate pages hurt SEO).
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  services?: (number | Service)[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Max 300 characters. Used on cards and as the meta description fallback.
+   */
+  excerpt?: string | null;
+  coverImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  categories?: (number | Category)[] | null;
+  tags?: (number | Tag)[] | null;
+  author?: (number | null) | Author;
+  /**
+   * Shows the "Related service" box. Falls back to the category’s service.
+   */
+  relatedService?: (number | null) | Service;
+  /**
+   * Set automatically on first publish. Keep the original date for migrated posts.
+   */
+  publishedAt?: string | null;
+  /**
+   * Minutes (automatic).
+   */
+  readingTime?: number | null;
+  featured?: boolean | null;
+  relatedPosts?: (number | Post)[] | null;
+  /**
+   * Creates a newsletter draft on first publish. Never sends automatically.
+   */
+  notifySubscribers?: boolean | null;
+  /**
+   * Old WordPress path, e.g. /2026/09/my-post/ (redirects to the new URL).
+   */
+  legacyUrl?: string | null;
+  createdBy?: (number | null) | User;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  description?: string | null;
+  /**
+   * The service this category mirrors (for related-service links).
+   */
+  service?: (number | null) | Service;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authors".
+ */
+export interface Author {
+  id: number;
+  name: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Optional: the CMS login for this author.
+   */
+  user?: (number | null) | User;
+  jobTitle?: string | null;
+  bio?: string | null;
+  photo?: (number | null) | Media;
+  expertise?:
+    | {
+        topic: string;
+        id?: string | null;
+      }[]
+    | null;
+  socials?: {
+    linkedin?: string | null;
+    x?: string | null;
+    instagram?: string | null;
+    website?: string | null;
+  };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  /**
+   * Admin: everything. Editor: manage all content. Author: write own posts. The very first account is always created as Admin.
+   */
+  roles: ('admin' | 'editor' | 'author')[];
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: number;
+  authorName: string;
+  platform: 'google' | 'clutch' | 'upwork' | 'other';
+  rating: number;
+  text?: string | null;
+  /**
+   * Link to the review on the platform.
+   */
+  reviewUrl?: string | null;
+  reviewedAt?: string | null;
+  /**
+   * Tick only for a review that exists on the platform.
+   */
+  verified?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges".
+ */
+export interface Badge {
+  id: number;
+  name: string;
+  image: number | Media;
+  /**
+   * Link to the profile/listing that proves the badge.
+   */
+  url?: string | null;
+  active?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packages".
+ */
+export interface Package {
+  id: number;
+  title: string;
+  service: number | Service;
+  tier: 'starter' | 'growth' | 'pro';
+  /**
+   * "Starting from" price. Leave empty until the client confirms it.
+   */
+  startingFrom?: number | null;
+  currency?: ('PKR' | 'USD') | null;
+  /**
+   * e.g. "per month" or "one-time".
+   */
+  priceNote?: string | null;
+  features?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Show as "Most popular".
+   */
+  highlighted?: boolean | null;
+  ctaLabel?: string | null;
+  /**
+   * Only active packages appear on the site.
+   */
+  active?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
+  /**
+   * Drafted or placeholder content that the client still has to approve.
+   */
+  needsReview?: boolean | null;
+  reviewNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "estimator-rules".
+ */
+export interface EstimatorRule {
+  id: number;
+  title: string;
+  service: number | Service;
+  /**
+   * Starting price for this service. Empty until confirmed.
+   */
+  basePrice?: number | null;
+  currency?: ('PKR' | 'USD') | null;
+  scopeOptions?:
+    | {
+        label: string;
+        description?: string | null;
+        /**
+         * Added to the base price.
+         */
+        priceAdd?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  timelineOptions?:
+    | {
+        label: string;
+        /**
+         * Applied to the total.
+         */
+        multiplier?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * How wide the shown range is around the estimate (e.g. 20 → ±20%).
+   */
+  rangeSpreadPercent?: number | null;
+  /**
+   * Turn on once prices are confirmed.
+   */
+  active?: boolean | null;
+  /**
+   * Drafted or placeholder content that the client still has to approve.
+   */
+  needsReview?: boolean | null;
+  reviewNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  company?: string | null;
+  source: 'contact-form' | 'prefooter-form' | 'free-audit' | 'estimator' | 'chatbot' | 'book-call' | 'manual';
+  status: 'new' | 'contacted' | 'proposal' | 'won' | 'lost';
+  assignedTo?: (number | null) | User;
+  services?: (number | Service)[] | null;
+  budget?: string | null;
+  timeline?: string | null;
+  message?: string | null;
+  /**
+   * Site to audit (free-audit requests).
+   */
+  website?: string | null;
+  /**
+   * Filled by the cost estimator.
+   */
+  estimate?: {
+    service?: (number | null) | Service;
+    selections?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    rangeMin?: number | null;
+    rangeMax?: number | null;
+    currency?: string | null;
+  };
+  chatSession?: (number | null) | ChatSession;
+  /**
+   * Internal notes. Admin only.
+   */
+  notes?: string | null;
+  /**
+   * First-touch tracking captured with the form.
+   */
+  attribution?: {
+    utmSource?: string | null;
+    utmMedium?: string | null;
+    utmCampaign?: string | null;
+    utmTerm?: string | null;
+    utmContent?: string | null;
+    referrer?: string | null;
+    landingPage?: string | null;
+  };
+  consent?: {
+    privacyAccepted?: boolean | null;
+    subscribeRequested?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-sessions".
+ */
+export interface ChatSession {
+  id: number;
+  sessionId: string;
+  messageCount?: number | null;
+  leadCaptured?: boolean | null;
+  /**
+   * Set when a prompt-injection or abuse pattern was detected.
+   */
+  flagged?: boolean | null;
+  startedAt?: string | null;
+  lastMessageAt?: string | null;
+  pageUrl?: string | null;
+  /**
+   * Salted hash for rate limiting. The raw IP is never stored.
+   */
+  ipHash?: string | null;
+  userAgent?: string | null;
+  messages?:
+    | {
+        role: 'user' | 'assistant' | 'tool' | 'system';
+        content: string;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  name?: string | null;
+  status: 'pending' | 'active' | 'unsubscribed' | 'bounced';
+  source?: ('footer' | 'blog-post' | 'popup' | 'import' | 'lead-form' | 'admin') | null;
+  /**
+   * Used to target campaigns, e.g. seo, clients.
+   */
+  tags?: string[] | null;
+  confirmedAt?: string | null;
+  unsubscribedAt?: string | null;
+  consentAt?: string | null;
+  consentIp?: string | null;
+  userAgent?: string | null;
+  confirmToken?: string | null;
+  confirmTokenExpires?: string | null;
+  unsubscribeToken?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaigns".
+ */
+export interface Campaign {
+  id: number;
+  subject: string;
+  preheader?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  fromPost?: (number | null) | Post;
+  audience: 'all' | 'tags';
+  audienceTags?: string[] | null;
+  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';
+  scheduledAt?: string | null;
+  sentAt?: string | null;
+  /**
+   * Address for the "Send test" action.
+   */
+  sendTestTo?: string | null;
+  stats?: {
+    recipients?: number | null;
+    sent?: number | null;
+    failed?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  /**
+   * Old path with trailing slash, e.g. /seo/
+   */
+  from: string;
+  /**
+   * New path (/services/seo/) or a full URL.
+   */
+  to: string;
+  statusCode: '301' | '302';
+  active?: boolean | null;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Managed by the indexing job. Re-indexing replaces these automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "knowledge-chunks".
+ */
+export interface KnowledgeChunk {
+  id: number;
+  title: string;
+  sourceType: 'service' | 'faq' | 'package' | 'industry' | 'post' | 'site-settings' | 'page';
+  sourceCollection: string;
+  sourceId: string;
+  /**
+   * Public page this chunk came from (for citations).
+   */
+  url?: string | null;
+  chunkIndex: number;
+  content: string;
+  /**
+   * Skips re-embedding unchanged chunks.
+   */
+  contentHash?: string | null;
+  embeddingModel?: string | null;
+  indexedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -231,18 +1380,206 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'services';
+        value: number | Service;
+      } | null)
+    | ({
+        relationTo: 'service-groups';
+        value: number | ServiceGroup;
+      } | null)
+    | ({
+        relationTo: 'industries';
+        value: number | Industry;
+      } | null)
+    | ({
+        relationTo: 'locations';
+        value: number | Location;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
+        relationTo: 'authors';
+        value: number | Author;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'portfolio';
+        value: number | Portfolio;
+      } | null)
+    | ({
+        relationTo: 'portfolio-categories';
+        value: number | PortfolioCategory;
+      } | null)
+    | ({
+        relationTo: 'clients';
+        value: number | Client;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: number | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: number | Review;
+      } | null)
+    | ({
+        relationTo: 'badges';
+        value: number | Badge;
+      } | null)
+    | ({
+        relationTo: 'packages';
+        value: number | Package;
+      } | null)
+    | ({
+        relationTo: 'estimator-rules';
+        value: number | EstimatorRule;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'subscribers';
+        value: number | Subscriber;
+      } | null)
+    | ({
+        relationTo: 'campaigns';
+        value: number | Campaign;
+      } | null)
+    | ({
+        relationTo: 'chat-sessions';
+        value: number | ChatSession;
       } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
+      } | null)
+    | ({
+        relationTo: 'knowledge-chunks';
+        value: number | KnowledgeChunk;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -288,28 +1625,640 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "pages_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  roles?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  excerpt?: T;
+  content?: T;
+  meta?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  path?: T;
+  group?: T;
+  parent?: T;
+  sortOrder?: T;
+  needsReview?: T;
+  reviewNote?: T;
+  shortDescription?: T;
+  cardImage?: T;
+  hero?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        image?: T;
+        trustLine?: T;
+      };
+  deliverables?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        icon?: T;
+        id?: T;
+      };
+  approach?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        steps?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  results?: T;
+  tools?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
+        id?: T;
+      };
+  industries?: T;
+  whyChoose?:
+    | T
+    | {
+        heading?: T;
+        items?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  cta?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        buttonLabel?: T;
+        buttonUrl?: T;
+        backgroundImage?: T;
+      };
+  faqs?: T;
+  longform?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-groups_select".
+ */
+export interface ServiceGroupsSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  description?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "industries_select".
+ */
+export interface IndustriesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  sortOrder?: T;
+  needsReview?: T;
+  reviewNote?: T;
+  summary?: T;
+  icon?: T;
+  hero?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        image?: T;
+      };
+  challenges?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  recommendedServices?: T;
+  faqs?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations_select".
+ */
+export interface LocationsSelect<T extends boolean = true> {
+  city?: T;
+  generateSlug?: T;
+  slug?: T;
+  country?: T;
+  intro?: T;
+  content?: T;
+  services?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  excerpt?: T;
+  coverImage?: T;
+  content?: T;
+  categories?: T;
+  tags?: T;
+  author?: T;
+  relatedService?: T;
+  publishedAt?: T;
+  readingTime?: T;
+  featured?: T;
+  relatedPosts?: T;
+  notifySubscribers?: T;
+  legacyUrl?: T;
+  createdBy?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  description?: T;
+  service?: T;
+  sortOrder?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authors_select".
+ */
+export interface AuthorsSelect<T extends boolean = true> {
+  name?: T;
+  generateSlug?: T;
+  slug?: T;
+  user?: T;
+  jobTitle?: T;
+  bio?: T;
+  photo?: T;
+  expertise?:
+    | T
+    | {
+        topic?: T;
+        id?: T;
+      };
+  socials?:
+    | T
+    | {
+        linkedin?: T;
+        x?: T;
+        instagram?: T;
+        website?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T;
+  answer?: T;
+  services?: T;
+  industries?: T;
+  topic?: T;
+  showOnHome?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio_select".
+ */
+export interface PortfolioSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  client?: T;
+  services?: T;
+  categories?: T;
+  industries?: T;
+  featured?: T;
+  sortOrder?: T;
+  completedAt?: T;
+  summary?: T;
+  heroImage?: T;
+  cardImage?: T;
+  deliverables?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  challenge?: T;
+  solution?: T;
+  results?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  videoUrl?: T;
+  projectUrl?: T;
+  testimonial?: T;
+  toolsUsed?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-categories_select".
+ */
+export interface PortfolioCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients_select".
+ */
+export interface ClientsSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  website?: T;
+  permissionConfirmed?: T;
+  featured?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  company?: T;
+  quote?: T;
+  avatar?: T;
+  rating?: T;
+  source?: T;
+  sourceUrl?: T;
+  verified?: T;
+  featured?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  authorName?: T;
+  platform?: T;
+  rating?: T;
+  text?: T;
+  reviewUrl?: T;
+  reviewedAt?: T;
+  verified?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "badges_select".
+ */
+export interface BadgesSelect<T extends boolean = true> {
+  name?: T;
+  image?: T;
+  url?: T;
+  active?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "packages_select".
+ */
+export interface PackagesSelect<T extends boolean = true> {
+  title?: T;
+  service?: T;
+  tier?: T;
+  startingFrom?: T;
+  currency?: T;
+  priceNote?: T;
+  features?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  highlighted?: T;
+  ctaLabel?: T;
+  active?: T;
+  sortOrder?: T;
+  needsReview?: T;
+  reviewNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "estimator-rules_select".
+ */
+export interface EstimatorRulesSelect<T extends boolean = true> {
+  title?: T;
+  service?: T;
+  basePrice?: T;
+  currency?: T;
+  scopeOptions?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+        priceAdd?: T;
+        id?: T;
+      };
+  timelineOptions?:
+    | T
+    | {
+        label?: T;
+        multiplier?: T;
+        id?: T;
+      };
+  rangeSpreadPercent?: T;
+  active?: T;
+  needsReview?: T;
+  reviewNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  whatsapp?: T;
+  company?: T;
+  source?: T;
+  status?: T;
+  assignedTo?: T;
+  services?: T;
+  budget?: T;
+  timeline?: T;
+  message?: T;
+  website?: T;
+  estimate?:
+    | T
+    | {
+        service?: T;
+        selections?: T;
+        rangeMin?: T;
+        rangeMax?: T;
+        currency?: T;
+      };
+  chatSession?: T;
+  notes?: T;
+  attribution?:
+    | T
+    | {
+        utmSource?: T;
+        utmMedium?: T;
+        utmCampaign?: T;
+        utmTerm?: T;
+        utmContent?: T;
+        referrer?: T;
+        landingPage?: T;
+      };
+  consent?:
+    | T
+    | {
+        privacyAccepted?: T;
+        subscribeRequested?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  name?: T;
+  status?: T;
+  source?: T;
+  tags?: T;
+  confirmedAt?: T;
+  unsubscribedAt?: T;
+  consentAt?: T;
+  consentIp?: T;
+  userAgent?: T;
+  confirmToken?: T;
+  confirmTokenExpires?: T;
+  unsubscribeToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaigns_select".
+ */
+export interface CampaignsSelect<T extends boolean = true> {
+  subject?: T;
+  preheader?: T;
+  content?: T;
+  fromPost?: T;
+  audience?: T;
+  audienceTags?: T;
+  status?: T;
+  scheduledAt?: T;
+  sentAt?: T;
+  sendTestTo?: T;
+  stats?:
+    | T
+    | {
+        recipients?: T;
+        sent?: T;
+        failed?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-sessions_select".
+ */
+export interface ChatSessionsSelect<T extends boolean = true> {
+  sessionId?: T;
+  messageCount?: T;
+  leadCaptured?: T;
+  flagged?: T;
+  startedAt?: T;
+  lastMessageAt?: T;
+  pageUrl?: T;
+  ipHash?: T;
+  userAgent?: T;
+  messages?:
+    | T
+    | {
+        role?: T;
+        content?: T;
+        at?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -385,11 +2334,98 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  roles?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  from?: T;
+  to?: T;
+  statusCode?: T;
+  active?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "knowledge-chunks_select".
+ */
+export interface KnowledgeChunksSelect<T extends boolean = true> {
+  title?: T;
+  sourceType?: T;
+  sourceCollection?: T;
+  sourceId?: T;
+  url?: T;
+  chunkIndex?: T;
+  content?: T;
+  contentHash?: T;
+  embeddingModel?: T;
+  indexedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -425,6 +2461,637 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home".
+ */
+export interface Home {
+  id: number;
+  /**
+   * Turn whole sections off. Sections with no data are hidden automatically.
+   */
+  sections?: {
+    hero?: boolean | null;
+    clientLogos?: boolean | null;
+    services?: boolean | null;
+    stats?: boolean | null;
+    projects?: boolean | null;
+    results?: boolean | null;
+    howWeWork?: boolean | null;
+    industries?: boolean | null;
+    estimatorTeaser?: boolean | null;
+    testimonials?: boolean | null;
+    latestPosts?: boolean | null;
+    faq?: boolean | null;
+    ctaBand?: boolean | null;
+  };
+  hero?: {
+    eyebrow?: string | null;
+    headline?: string | null;
+    /**
+     * Word in the headline shown in red.
+     */
+    highlightWord?: string | null;
+    subheadline?: string | null;
+    primaryCta?: {
+      label?: string | null;
+      url?: string | null;
+    };
+    secondaryCta?: {
+      label?: string | null;
+      url?: string | null;
+    };
+    /**
+     * Real numbers only (e.g. "N projects delivered"). Empty = hidden.
+     */
+    trustLine?: string | null;
+    image?: (number | null) | Media;
+  };
+  servicesSection?: {
+    heading?: string | null;
+    intro?: string | null;
+  };
+  projectsSection?: {
+    heading?: string | null;
+    projects?: (number | Portfolio)[] | null;
+  };
+  resultsSection?: {
+    heading?: string | null;
+    projects?: (number | Portfolio)[] | null;
+  };
+  howWeWork?: {
+    heading?: string | null;
+    steps?:
+      | {
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  industriesSection?: {
+    heading?: string | null;
+    intro?: string | null;
+  };
+  estimatorTeaser?: {
+    heading?: string | null;
+    text?: string | null;
+    buttonLabel?: string | null;
+  };
+  testimonialsSection?: {
+    heading?: string | null;
+    /**
+     * Real, verified testimonials only. Section is hidden when none.
+     */
+    testimonials?: (number | Testimonial)[] | null;
+  };
+  latestPosts?: {
+    heading?: string | null;
+    count?: number | null;
+  };
+  faqSection?: {
+    heading?: string | null;
+    faqs?: (number | Faq)[] | null;
+  };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    focusKeyword?: string | null;
+    /**
+     * Only if this page should point to a different canonical URL.
+     */
+    canonicalOverride?: string | null;
+    noindex?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats".
+ */
+export interface Stat {
+  id: number;
+  /**
+   * Only numbers you can back up. Leave empty to hide the strip.
+   */
+  items?:
+    | {
+        /**
+         * e.g. 120+
+         */
+        value: string;
+        /**
+         * e.g. Projects delivered
+         */
+        label: string;
+        /**
+         * Internal note: where this number comes from.
+         */
+        source?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  businessName: string;
+  /**
+   * Display format, e.g. +92 323 578 8660
+   */
+  phone?: string | null;
+  /**
+   * Digits only with country code, e.g. 923235788660
+   */
+  whatsappNumber?: string | null;
+  email?: string | null;
+  address?: {
+    street?: string | null;
+    city?: string | null;
+    region?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  /**
+   * Office hours. Leave empty until confirmed (nothing is shown or marked up).
+   */
+  hours?:
+    | {
+        /**
+         * e.g. Mon–Fri
+         */
+        days: string;
+        /**
+         * 24h, e.g. 09:00
+         */
+        opens: string;
+        /**
+         * 24h, e.g. 18:00
+         */
+        closes: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. "We reply within one business day". Only state what you can keep.
+   */
+  responseTime?: string | null;
+  /**
+   * Google Maps embed (iframe src) URL.
+   */
+  mapEmbedUrl?: string | null;
+  socials?:
+    | {
+        platform: 'facebook' | 'instagram' | 'linkedin' | 'youtube' | 'x' | 'tiktok';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Cal.com or Calendly link (embedded on /book-a-call/).
+   */
+  bookingUrl?: string | null;
+  /**
+   * Loaded only after cookie consent.
+   */
+  analytics?: {
+    ga4Id?: string | null;
+    gtmId?: string | null;
+    clarityId?: string | null;
+  };
+  /**
+   * Colour logo for light backgrounds.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * White logo for the navy footer.
+   */
+  logoWhite?: (number | null) | Media;
+  /**
+   * Fallback social-sharing image (1200×630).
+   */
+  defaultOgImage?: (number | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header".
+ */
+export interface Header {
+  id: number;
+  /**
+   * Phone, email and social icons (taken from Site settings).
+   */
+  showTopBar?: boolean | null;
+  /**
+   * Groups shown under "Services": Marketing / Design & Media / Development & AI.
+   */
+  megaMenu?:
+    | {
+        label: string;
+        group?: (number | null) | ServiceGroup;
+        items?:
+          | {
+              service: number | Service;
+              labelOverride?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  navLinks?:
+    | {
+        label: string;
+        url: string;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    label?: string | null;
+    url?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  brandStrip?: {
+    heading?: string | null;
+    statement?: string | null;
+  };
+  /**
+   * Grouped service links, built from the Services.
+   */
+  showServiceGroups?: boolean | null;
+  showIndustries?: boolean | null;
+  columns?:
+    | {
+        title: string;
+        links?:
+          | {
+              label: string;
+              url: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  newsletter?: {
+    heading?: string | null;
+    text?: string | null;
+  };
+  legalLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * {year} is replaced with the current year.
+   */
+  copyrightText?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chatbot-settings".
+ */
+export interface ChatbotSetting {
+  id: number;
+  /**
+   * The chatbot is built in Phase 9. Keep off until then.
+   */
+  enabled?: boolean | null;
+  greeting?: string | null;
+  /**
+   * Shown with a WhatsApp button when the chatbot fails or hits its cap.
+   */
+  fallbackText?: string | null;
+  systemPrompt: string;
+  /**
+   * Groq model id. Empty = GROQ_MODEL from the environment.
+   */
+  model?: string | null;
+  limits?: {
+    /**
+     * Total chatbot replies per day across all visitors.
+     */
+    dailyMessageCap?: number | null;
+    perIpPerHour?: number | null;
+    maxOutputTokens?: number | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home_select".
+ */
+export interface HomeSelect<T extends boolean = true> {
+  sections?:
+    | T
+    | {
+        hero?: T;
+        clientLogos?: T;
+        services?: T;
+        stats?: T;
+        projects?: T;
+        results?: T;
+        howWeWork?: T;
+        industries?: T;
+        estimatorTeaser?: T;
+        testimonials?: T;
+        latestPosts?: T;
+        faq?: T;
+        ctaBand?: T;
+      };
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        headline?: T;
+        highlightWord?: T;
+        subheadline?: T;
+        primaryCta?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+            };
+        secondaryCta?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+            };
+        trustLine?: T;
+        image?: T;
+      };
+  servicesSection?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+      };
+  projectsSection?:
+    | T
+    | {
+        heading?: T;
+        projects?: T;
+      };
+  resultsSection?:
+    | T
+    | {
+        heading?: T;
+        projects?: T;
+      };
+  howWeWork?:
+    | T
+    | {
+        heading?: T;
+        steps?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  industriesSection?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+      };
+  estimatorTeaser?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        buttonLabel?: T;
+      };
+  testimonialsSection?:
+    | T
+    | {
+        heading?: T;
+        testimonials?: T;
+      };
+  latestPosts?:
+    | T
+    | {
+        heading?: T;
+        count?: T;
+      };
+  faqSection?:
+    | T
+    | {
+        heading?: T;
+        faqs?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        focusKeyword?: T;
+        canonicalOverride?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats_select".
+ */
+export interface StatsSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        source?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  businessName?: T;
+  phone?: T;
+  whatsappNumber?: T;
+  email?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        region?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  hours?:
+    | T
+    | {
+        days?: T;
+        opens?: T;
+        closes?: T;
+        id?: T;
+      };
+  responseTime?: T;
+  mapEmbedUrl?: T;
+  socials?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  bookingUrl?: T;
+  analytics?:
+    | T
+    | {
+        ga4Id?: T;
+        gtmId?: T;
+        clarityId?: T;
+      };
+  logo?: T;
+  logoWhite?: T;
+  defaultOgImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header_select".
+ */
+export interface HeaderSelect<T extends boolean = true> {
+  showTopBar?: T;
+  megaMenu?:
+    | T
+    | {
+        label?: T;
+        group?: T;
+        items?:
+          | T
+          | {
+              service?: T;
+              labelOverride?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  navLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  brandStrip?:
+    | T
+    | {
+        heading?: T;
+        statement?: T;
+      };
+  showServiceGroups?: T;
+  showIndustries?: T;
+  columns?:
+    | T
+    | {
+        title?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  newsletter?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+      };
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  copyrightText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chatbot-settings_select".
+ */
+export interface ChatbotSettingsSelect<T extends boolean = true> {
+  enabled?: T;
+  greeting?: T;
+  fallbackText?: T;
+  systemPrompt?: T;
+  model?: T;
+  limits?:
+    | T
+    | {
+        dailyMessageCap?: T;
+        perIpPerHour?: T;
+        maxOutputTokens?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -432,6 +3099,99 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'services';
+          value: number | Service;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'portfolio';
+          value: number | Portfolio;
+        } | null);
+    global?: string | null;
+    user?: {
+      relationTo: 'users';
+      value: number | User;
+    } | null;
+  };
+  output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock".
+ */
+export interface CalloutBlock {
+  tone: 'info' | 'tip' | 'warning';
+  title?: string | null;
+  body: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock".
+ */
+export interface CtaBlock {
+  heading: string;
+  text?: string | null;
+  buttonLabel: string;
+  /**
+   * Site path (e.g. /free-audit/) or full URL.
+   */
+  buttonUrl: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  heading?: string | null;
+  items: {
+    question: string;
+    answer: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "YoutubeBlock".
+ */
+export interface YoutubeBlock {
+  /**
+   * Optional YouTube link.
+   */
+  url: string;
+  /**
+   * Accessible title for the embed.
+   */
+  title?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'youtube';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

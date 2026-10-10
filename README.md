@@ -28,7 +28,10 @@ pnpm install
 # 4. Create the database tables (also enables the pgvector extension)
 pnpm migrate
 
-# 5. Start the dev server
+# 5. Load the starting content (services, menu, FAQs, redirects, settings). Safe to re-run.
+pnpm seed
+
+# 6. Start the dev server
 pnpm dev
 ```
 
@@ -52,6 +55,7 @@ Local `DATABASE_URL`: `postgres://pentox:pentox_dev_pass@localhost:5432/pentox` 
 | `pnpm migrate`       | Apply pending DB migrations           |
 | `pnpm migrate:create <name>` | Create a migration from schema changes |
 | `pnpm migrate:status` | Show which migrations have run       |
+| `pnpm seed`          | Load starter content; never overwrites existing docs |
 | `pnpm test:int`      | Vitest integration tests              |
 | `pnpm test:e2e`      | Playwright end-to-end tests           |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts`    |
