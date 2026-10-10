@@ -1,0 +1,64 @@
+# --- dependencies ---
+node_modules/
+.pnpm-store/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# --- Next.js / build ---
+/.next/
+/out/
+/build
+/dist
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+
+# --- env (real secrets never committed; template is) ---
+.env
+.env.*
+!.env.example
+*.pem
+# test.env holds only NODE_OPTIONS (no secrets) and is used by the test runners, so it stays tracked.
+
+# --- Payload ---
+# uploaded files
+/media
+# src/payload-types.ts and migrations are tracked
+
+# --- logs and debug ---
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- testing ---
+/coverage
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+.vitest/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# --- Claude Code (skills + shared settings are tracked) ---
+.claude/settings.local.json
+
+# --- local DB backups and dumps ---
+*.sql
+*.dump
+backups/
+
+# --- brain/ (local security notes) ---
+# Ignored until you decide; remove this line to track it.
+brain/
