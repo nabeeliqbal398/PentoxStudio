@@ -17,6 +17,8 @@
   --color-form-label: #0d1427;
 
   --container-site: 72rem;
+
+  --shadow-soft: 0 20px 70px 0 rgba(28, 36, 75, 0.18);
 }
 
 /* next/font injects --font-poppins / --font-inter on <html> (see layout.tsx). */
@@ -50,5 +52,19 @@
     html {
       scroll-behavior: auto;
     }
+
+    /* Visitors who ask for less motion get no transitions or animations anywhere. */
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 }
