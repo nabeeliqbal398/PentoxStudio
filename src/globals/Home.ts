@@ -18,6 +18,7 @@ const sectionToggles = [
   ['testimonials', 'Testimonials'],
   ['latestPosts', 'Latest blog posts'],
   ['faq', 'FAQ'],
+  ['newsletter', 'Newsletter signup'],
   ['ctaBand', 'Pre-footer CTA band'],
 ] as const
 
@@ -25,7 +26,8 @@ const toggleFields: Field[] = sectionToggles.map(([name, label]) => ({
   name,
   type: 'checkbox',
   label,
-  defaultValue: true,
+  // The newsletter signup is off on the Home page until someone switches it on (it is in the footer already).
+  defaultValue: name !== 'newsletter',
 }))
 
 const cta = (name: string, label: string): Field => ({

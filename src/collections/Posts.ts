@@ -1,4 +1,9 @@
-import { slugField, type CollectionBeforeChangeHook, type CollectionConfig } from 'payload'
+import {
+  slugField,
+  type CollectionAfterChangeHook,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+} from 'payload'
 
 import {
   hasRole,
@@ -10,6 +15,8 @@ import {
 import { readingTimeMinutes } from '../hooks/readingTime'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { createDraftFromPost } from '../lib/newsletter/draft'
+import { postNewsletterDraftEndpoint } from '../lib/newsletter/endpoints'
 import { contentEditor } from '../lib/editor'
 import { previewUrl } from '../lib/paths'
 import { draftVersions } from '../lib/versions'
@@ -40,6 +47,16 @@ const setPublishedAt: CollectionBeforeChangeHook = ({ data }) => {
   return data
 }
 
+// The sidebar checkbox "create a newsletter draft on first publish". It only ever creates a DRAFT campaign for
+// an editor to review; nothing is sent automatically.
+const newsletterDraftOnFirstPublish: CollectionAfterChangeHook = async ({ doc, previousDoc, req }) => {
+  if (doc.notifySubscribers && doc._status === 'published' && previousDoc?._status !== 'published' && !req.context.skipNewsletter) {
+    const result = await createDraftFromPost(req.payload, doc.id)
+    if (!result.ok) req.payload.logger.warn(`Newsletter draft for post ${doc.id} not created: ${result.error}`)
+  }
+  return doc
+}
+
 export const Posts: CollectionConfig = {
   slug: 'posts',
   labels: { singular: 'Post', plural: 'Posts' },
@@ -52,6 +69,7 @@ export const Posts: CollectionConfig = {
   },
   versions: draftVersions,
   defaultSort: '-publishedAt',
+  endpoints: [postNewsletterDraftEndpoint],
   access: {
     read: publishedOrOwn,
     create: isLoggedIn,
@@ -60,7 +78,7 @@ export const Posts: CollectionConfig = {
   },
   hooks: {
     beforeChange: [setCreatedBy, authorsCannotPublish, setReadingTime, setPublishedAt],
-    afterChange: [revalidateAfterChange('posts')],
+    afterChange: [revalidateAfterChange('posts'), newsletterDraftOnFirstPublish],
     afterDelete: [revalidateAfterDelete('posts')],
   },
   fields: [
@@ -122,6 +140,11 @@ export const Posts: CollectionConfig = {
     },
     { name: 'featured', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } },
     { name: 'relatedPosts', type: 'relationship', relationTo: 'posts', hasMany: true },
+    {
+      name: 'newsletterDraft',
+      type: 'ui',
+      admin: { position: 'sidebar', components: { Field: '/components/admin/PostNewsletterButton#PostNewsletterButton' } },
+    },
     {
       name: 'notifySubscribers',
       type: 'checkbox',

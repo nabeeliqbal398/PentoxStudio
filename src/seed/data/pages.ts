@@ -513,3 +513,51 @@ export const portfolioCategories = [
   'Printing & Packaging',
   '3D',
 ]
+
+// Wording for the newsletter signup, the confirm / unsubscribe pages and the confirmation email.
+export const newsletterText = {
+  signup: {
+    heading: 'Subscribe to our newsletter',
+    text: 'Practical marketing and web tips. Unsubscribe anytime.',
+    emailLabel: 'Email address',
+    emailPlaceholder: 'Your email address',
+    button: 'Subscribe',
+    sending: 'Sending…',
+    consentText: 'I agree to receive emails from Pentox Studio. See the',
+    privacyLinkLabel: 'Privacy Policy',
+    success: 'Almost done! Please check your inbox and click the link in our email to confirm your subscription.',
+    errorInvalid: 'Please enter a valid email address and tick the box to agree.',
+    errorRate: 'Too many attempts from your connection. Please try again later.',
+    errorVerification: 'We could not verify the spam check. Please try again.',
+    errorFailed: 'We could not send the confirmation email. Please try again later.',
+  },
+  confirmPage: {
+    title: 'Confirm your subscription',
+    intro: 'Press the button to confirm that you want to receive our newsletter.',
+    button: 'Confirm subscription',
+    doneTitle: 'You are subscribed',
+    doneText: 'Thank you. You will now receive our newsletter. You can unsubscribe at any time from any email.',
+    invalidTitle: 'This link is not valid',
+    invalidText: 'The confirmation link is invalid, has expired or was already used. Please sign up again to get a new one.',
+    homeLink: 'Back to the website',
+  },
+  unsubscribePage: {
+    title: 'Unsubscribe',
+    intro: 'Press the button to stop receiving our newsletter.',
+    button: 'Unsubscribe',
+    doneTitle: 'You are unsubscribed',
+    doneText: 'You will not receive any more newsletters from us. We are sorry to see you go.',
+    invalidTitle: 'This link is not valid',
+    invalidText: 'The unsubscribe link is not valid. Please use the link in the latest email you received.',
+    homeLink: 'Back to the website',
+  },
+  emails: {
+    confirmSubject: 'Please confirm your subscription',
+    confirmIntro: 'Thanks for signing up for the Pentox Studio newsletter. Please confirm your email address to start receiving it.',
+    confirmButton: 'Confirm subscription',
+    confirmIgnore: 'If you did not sign up, you can ignore this email and you will not be subscribed.',
+    reason: 'You are receiving this email because you subscribed to the Pentox Studio newsletter.',
+    unsubscribeLink: 'Unsubscribe',
+    viewOnSite: 'View on the website',
+  },
+}

@@ -1,13 +1,26 @@
-import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 
 import { isAdmin, isAdminOrEditor, nobody } from '../access'
 import { adminGroups } from '../lib/adminGroups'
+import { exportSubscribersEndpoint, importSubscribersEndpoint } from '../lib/newsletter/endpoints'
 
 const normalizeEmail: CollectionBeforeValidateHook = ({ data }) => {
   if (data?.email && typeof data.email === 'string') {
     return { ...data, email: data.email.trim().toLowerCase() }
   }
   return data
+}
+
+// Keeps the timestamps in step when an admin changes a status by hand.
+const stampStatusChange: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
+  const next = { ...data }
+  if (data.status === 'unsubscribed' && originalDoc?.status !== 'unsubscribed' && !data.unsubscribedAt) {
+    next.unsubscribedAt = new Date().toISOString()
+  }
+  if (data.status === 'active' && originalDoc?.status !== 'active' && !data.confirmedAt) {
+    next.confirmedAt = new Date().toISOString()
+  }
+  return next
 }
 
 // Newsletter audience. Public signup goes through /api/subscribe (Phase 8) with double opt-in;
@@ -20,7 +33,9 @@ export const Subscribers: CollectionConfig = {
     defaultColumns: ['email', 'name', 'status', 'source', 'tags', 'createdAt'],
     group: adminGroups.leads,
     listSearchableFields: ['email', 'name'],
+    components: { beforeListTable: ['/components/admin/SubscribersTools#SubscribersTools'] },
   },
+  endpoints: [exportSubscribersEndpoint, importSubscribersEndpoint],
   defaultSort: '-createdAt',
   access: {
     create: isAdminOrEditor,
@@ -28,7 +43,7 @@ export const Subscribers: CollectionConfig = {
     update: isAdminOrEditor,
     delete: isAdmin,
   },
-  hooks: { beforeValidate: [normalizeEmail] },
+  hooks: { beforeValidate: [normalizeEmail], beforeChange: [stampStatusChange] },
   fields: [
     { name: 'email', type: 'email', required: true, unique: true, index: true },
     { name: 'name', type: 'text' },
@@ -53,6 +68,7 @@ export const Subscribers: CollectionConfig = {
       defaultValue: 'admin',
       options: [
         { label: 'Footer form', value: 'footer' },
+        { label: 'Home page', value: 'home' },
         { label: 'Blog post', value: 'blog-post' },
         { label: 'Popup', value: 'popup' },
         { label: 'CSV import', value: 'import' },

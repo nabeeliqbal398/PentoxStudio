@@ -88,6 +88,7 @@ export interface Config {
     leads: Lead;
     subscribers: Subscriber;
     campaigns: Campaign;
+    'campaign-deliveries': CampaignDelivery;
     'chat-sessions': ChatSession;
     media: Media;
     users: User;
@@ -122,6 +123,7 @@ export interface Config {
     leads: LeadsSelect<false> | LeadsSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    'campaign-deliveries': CampaignDeliveriesSelect<false> | CampaignDeliveriesSelect<true>;
     'chat-sessions': ChatSessionsSelect<false> | ChatSessionsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -143,9 +145,11 @@ export interface Config {
     'site-settings': SiteSetting;
     'site-text': SiteText;
     'lead-forms': LeadForm;
+    newsletter: Newsletter;
     header: Header;
     footer: Footer;
     'chatbot-settings': ChatbotSetting;
+    'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
@@ -153,9 +157,11 @@ export interface Config {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'site-text': SiteTextSelect<false> | SiteTextSelect<true>;
     'lead-forms': LeadFormsSelect<false> | LeadFormsSelect<true>;
+    newsletter: NewsletterSelect<false> | NewsletterSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'chatbot-settings': ChatbotSettingsSelect<false> | ChatbotSettingsSelect<true>;
+    'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -164,6 +170,8 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      'send-campaign-batch': TaskSendCampaignBatch;
+      'campaign-scheduler': TaskCampaignScheduler;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1352,7 +1360,7 @@ export interface Subscriber {
   email: string;
   name?: string | null;
   status: 'pending' | 'active' | 'unsubscribed' | 'bounced';
-  source?: ('footer' | 'blog-post' | 'popup' | 'import' | 'lead-form' | 'admin') | null;
+  source?: ('footer' | 'home' | 'blog-post' | 'popup' | 'import' | 'lead-form' | 'admin') | null;
   /**
    * Used to target campaigns, e.g. seo, clients.
    */
@@ -1406,6 +1414,37 @@ export interface Campaign {
     sent?: number | null;
     failed?: number | null;
   };
+  /**
+   * Where the send is up to (set by the sending job).
+   */
+  progress?: {
+    /**
+     * ID of the last subscriber handled.
+     */
+    cursor?: number | null;
+    startedAt?: string | null;
+    lockedUntil?: string | null;
+    /**
+     * Set while waiting for the daily sending limit to reset.
+     */
+    pausedUntil?: string | null;
+    lastError?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaign-deliveries".
+ */
+export interface CampaignDelivery {
+  id: number;
+  campaign: number | Campaign;
+  subscriber: number | Subscriber;
+  email: string;
+  status: 'pending' | 'sent' | 'failed';
+  sentAt?: string | null;
+  error?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1525,7 +1564,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'send-campaign-batch' | 'campaign-scheduler' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1558,10 +1597,19 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'send-campaign-batch' | 'campaign-scheduler' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1655,6 +1703,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'campaigns';
         value: number | Campaign;
+      } | null)
+    | ({
+        relationTo: 'campaign-deliveries';
+        value: number | CampaignDelivery;
       } | null)
     | ({
         relationTo: 'chat-sessions';
@@ -2378,6 +2430,29 @@ export interface CampaignsSelect<T extends boolean = true> {
         sent?: T;
         failed?: T;
       };
+  progress?:
+    | T
+    | {
+        cursor?: T;
+        startedAt?: T;
+        lockedUntil?: T;
+        pausedUntil?: T;
+        lastError?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "campaign-deliveries_select".
+ */
+export interface CampaignDeliveriesSelect<T extends boolean = true> {
+  campaign?: T;
+  subscriber?: T;
+  email?: T;
+  status?: T;
+  sentAt?: T;
+  error?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2570,6 +2645,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  meta?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2627,6 +2703,7 @@ export interface Home {
     testimonials?: boolean | null;
     latestPosts?: boolean | null;
     faq?: boolean | null;
+    newsletter?: boolean | null;
     ctaBand?: boolean | null;
   };
   hero?: {
@@ -3043,6 +3120,61 @@ export interface LeadForm {
   createdAt?: string | null;
 }
 /**
+ * Signup form, confirm/unsubscribe pages and confirmation email wording.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter".
+ */
+export interface Newsletter {
+  id: number;
+  signup?: {
+    heading?: string | null;
+    text?: string | null;
+    emailLabel?: string | null;
+    emailPlaceholder?: string | null;
+    button?: string | null;
+    sending?: string | null;
+    consentText?: string | null;
+    privacyLinkLabel?: string | null;
+    success?: string | null;
+    errorInvalid?: string | null;
+    errorRate?: string | null;
+    errorVerification?: string | null;
+    errorFailed?: string | null;
+  };
+  confirmPage?: {
+    title?: string | null;
+    intro?: string | null;
+    button?: string | null;
+    doneTitle?: string | null;
+    doneText?: string | null;
+    invalidTitle?: string | null;
+    invalidText?: string | null;
+    homeLink?: string | null;
+  };
+  unsubscribePage?: {
+    title?: string | null;
+    intro?: string | null;
+    button?: string | null;
+    doneTitle?: string | null;
+    doneText?: string | null;
+    invalidTitle?: string | null;
+    invalidText?: string | null;
+    homeLink?: string | null;
+  };
+  emails?: {
+    confirmSubject?: string | null;
+    confirmIntro?: string | null;
+    confirmButton?: string | null;
+    confirmIgnore?: string | null;
+    reason?: string | null;
+    unsubscribeLink?: string | null;
+    viewOnSite?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
@@ -3178,6 +3310,24 @@ export interface ChatbotSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats".
+ */
+export interface PayloadJobsStat {
+  id: number;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
 export interface HomeSelect<T extends boolean = true> {
@@ -3196,6 +3346,7 @@ export interface HomeSelect<T extends boolean = true> {
         testimonials?: T;
         latestPosts?: T;
         faq?: T;
+        newsletter?: T;
         ctaBand?: T;
       };
   hero?:
@@ -3594,6 +3745,67 @@ export interface LeadFormsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter_select".
+ */
+export interface NewsletterSelect<T extends boolean = true> {
+  signup?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        emailLabel?: T;
+        emailPlaceholder?: T;
+        button?: T;
+        sending?: T;
+        consentText?: T;
+        privacyLinkLabel?: T;
+        success?: T;
+        errorInvalid?: T;
+        errorRate?: T;
+        errorVerification?: T;
+        errorFailed?: T;
+      };
+  confirmPage?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        button?: T;
+        doneTitle?: T;
+        doneText?: T;
+        invalidTitle?: T;
+        invalidText?: T;
+        homeLink?: T;
+      };
+  unsubscribePage?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        button?: T;
+        doneTitle?: T;
+        doneText?: T;
+        invalidTitle?: T;
+        invalidText?: T;
+        homeLink?: T;
+      };
+  emails?:
+    | T
+    | {
+        confirmSubject?: T;
+        confirmIntro?: T;
+        confirmButton?: T;
+        confirmIgnore?: T;
+        reason?: T;
+        unsubscribeLink?: T;
+        viewOnSite?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -3715,6 +3927,16 @@ export interface ChatbotSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats_select".
+ */
+export interface PayloadJobsStatsSelect<T extends boolean = true> {
+  stats?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -3722,6 +3944,30 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSend-campaign-batch".
+ */
+export interface TaskSendCampaignBatch {
+  input: {
+    campaignId: number;
+  };
+  output: {
+    sent?: number | null;
+    failed?: number | null;
+    done?: boolean | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskCampaign-scheduler".
+ */
+export interface TaskCampaignScheduler {
+  input?: unknown;
+  output: {
+    started?: number | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

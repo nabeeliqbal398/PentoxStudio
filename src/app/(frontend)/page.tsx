@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
+import { Section } from '@/components/ui/Section'
 import { ClientLogos } from '@/components/sections/ClientLogos'
 import { CtaBand } from '@/components/sections/CtaBand'
 import { EstimatorTeaser } from '@/components/sections/EstimatorTeaser'
@@ -197,6 +199,15 @@ export default async function HomePage() {
 
       {/* 12. FAQ */}
       {on('faq') && <FaqSection faqs={faqs} heading={home.faqSection?.heading} id="home-faq" />}
+
+      {/* Optional: newsletter signup (off by default; switch on in the Home page settings) */}
+      {home.sections?.newsletter === true && (
+        <Section className="max-w-2xl">
+          <div className="rounded-2xl bg-white p-6 shadow-[0_8px_30px_rgba(28,36,75,.08)] md:p-8">
+            <NewsletterSignup source="home" />
+          </div>
+        </Section>
+      )}
 
       {/* 13. Pre-footer CTA band */}
       {on('ctaBand') && <CtaBand band={band} />}

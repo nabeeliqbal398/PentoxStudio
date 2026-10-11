@@ -52,6 +52,7 @@ export type HeaderInfo = {
 export type FooterInfo = {
   brandHeading?: string
   brandStatement?: string
+  newsletter?: { heading?: string; text?: string }
   serviceGroups: MenuGroup[]
   industries: { id: number | string; title: string; href: string }[]
   columns: { title: string; links: NavLink[] }[]
@@ -283,6 +284,7 @@ export const getFooterInfo = unstable_cache(
     return {
       brandHeading: text(footer.brandStrip?.heading),
       brandStatement: text(footer.brandStrip?.statement),
+      newsletter: { heading: text(footer.newsletter?.heading), text: text(footer.newsletter?.text) },
       serviceGroups,
       industries:
         footer.showIndustries === false

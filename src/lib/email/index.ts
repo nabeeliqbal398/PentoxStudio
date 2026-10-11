@@ -12,6 +12,8 @@ export type EmailMessage = {
   html: string
   text: string
   replyTo?: string
+  /** Extra headers, e.g. List-Unsubscribe for newsletters. */
+  headers?: Record<string, string>
 }
 
 export type EmailResult = { status: 'sent' } | { status: 'skipped'; reason: string } | { status: 'failed'; reason: string }
@@ -30,6 +32,7 @@ export async function sendEmail(payload: Payload, message: EmailMessage): Promis
         html: message.html,
         text: message.text,
         replyTo: message.replyTo,
+        headers: message.headers,
       }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP timed out')), SEND_TIMEOUT_MS)),
     ])

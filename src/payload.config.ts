@@ -9,6 +9,7 @@ import sharp from 'sharp'
 
 import { Authors } from './collections/Authors'
 import { Badges } from './collections/Badges'
+import { CampaignDeliveries } from './collections/CampaignDeliveries'
 import { Campaigns } from './collections/Campaigns'
 import { Categories } from './collections/Categories'
 import { ChatSessions } from './collections/ChatSessions'
@@ -38,6 +39,8 @@ import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Home } from './globals/Home'
 import { LeadForms } from './globals/LeadForms'
+import { Newsletter } from './globals/Newsletter'
+import { newsletterTasks } from './jobs/newsletter'
 import { SiteSettings } from './globals/SiteSettings'
 import { SiteText } from './globals/SiteText'
 import { Stats } from './globals/Stats'
@@ -106,6 +109,7 @@ export default buildConfig({
     Leads,
     Subscribers,
     Campaigns,
+    CampaignDeliveries,
     ChatSessions,
     // Media
     Media,
@@ -114,7 +118,7 @@ export default buildConfig({
     Redirects,
     KnowledgeChunks,
   ],
-  globals: [Home, Stats, SiteSettings, SiteText, LeadForms, Header, Footer, ChatbotSettings],
+  globals: [Home, Stats, SiteSettings, SiteText, LeadForms, Newsletter, Header, Footer, ChatbotSettings],
   editor: lexicalEditor(),
   // SMTP from .env. Without it no adapter is set and src/lib/email skips sending (leads are still saved).
   email: isEmailConfigured()
@@ -141,7 +145,9 @@ export default buildConfig({
   },
   // Powers scheduled publish/unpublish (and the newsletter/indexing jobs in later phases).
   jobs: {
+    // Every minute: scheduled publishing, newsletter batches and the campaign scheduler.
     autoRun: [{ cron: '* * * * *', limit: 10, queue: 'default' }],
+    tasks: newsletterTasks,
   },
   db: postgresAdapter({
     pool: {

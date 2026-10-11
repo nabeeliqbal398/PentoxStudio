@@ -3,8 +3,15 @@ import type { CollectionConfig } from 'payload'
 import { isAdmin, isAdminOrEditor } from '../access'
 import { adminGroups } from '../lib/adminGroups'
 import { contentEditor } from '../lib/editor'
+import {
+  campaignAudienceEndpoint,
+  campaignSendEndpoint,
+  campaignStopEndpoint,
+  campaignTestEndpoint,
+} from '../lib/newsletter/endpoints'
 
-// Newsletter campaigns. Batched SMTP sending runs as a Payload job (Phase 8).
+// Newsletter campaigns. Batched, throttled SMTP sending runs as a Payload job (src/jobs/newsletter.ts,
+// src/lib/newsletter/send.ts). The Send test / Send / Stop buttons live in the sidebar (CampaignActions).
 export const Campaigns: CollectionConfig = {
   slug: 'campaigns',
   labels: { singular: 'Campaign', plural: 'Campaigns' },
@@ -14,6 +21,7 @@ export const Campaigns: CollectionConfig = {
     group: adminGroups.leads,
   },
   defaultSort: '-createdAt',
+  endpoints: [campaignAudienceEndpoint, campaignTestEndpoint, campaignSendEndpoint, campaignStopEndpoint],
   access: {
     create: isAdminOrEditor,
     read: isAdminOrEditor,
@@ -21,6 +29,11 @@ export const Campaigns: CollectionConfig = {
     delete: isAdmin,
   },
   fields: [
+    {
+      name: 'actions',
+      type: 'ui',
+      admin: { position: 'sidebar', components: { Field: '/components/admin/CampaignActions#CampaignActions' } },
+    },
     { name: 'subject', type: 'text', required: true },
     { name: 'preheader', type: 'text' },
     { name: 'content', type: 'richText', editor: contentEditor, required: true },
@@ -76,6 +89,18 @@ export const Campaigns: CollectionConfig = {
         { name: 'recipients', type: 'number', defaultValue: 0 },
         { name: 'sent', type: 'number', defaultValue: 0 },
         { name: 'failed', type: 'number', defaultValue: 0 },
+      ],
+    },
+    {
+      name: 'progress',
+      type: 'group',
+      admin: { readOnly: true, description: 'Where the send is up to (set by the sending job).' },
+      fields: [
+        { name: 'cursor', type: 'number', defaultValue: 0, admin: { description: 'ID of the last subscriber handled.' } },
+        { name: 'startedAt', type: 'date' },
+        { name: 'lockedUntil', type: 'date' },
+        { name: 'pausedUntil', type: 'date', admin: { description: 'Set while waiting for the daily sending limit to reset.' } },
+        { name: 'lastError', type: 'text' },
       ],
     },
   ],

@@ -95,15 +95,17 @@ export function Consent({
   linkLabel,
   href,
   id,
+  inputName = 'privacy',
 }: {
   text?: string | null
   linkLabel?: string | null
   href: string
   id: string
+  inputName?: string
 }) {
   return (
     <label className="flex items-start gap-3 text-sm text-body" htmlFor={id}>
-      <input className="mt-1 size-4 accent-brand" id={id} name="privacy" required type="checkbox" />
+      <input className="mt-1 size-4 accent-brand" id={id} name={inputName} required type="checkbox" />
       <span>
         {text}{' '}
         <a className="text-accent underline underline-offset-2" href={href} rel="noopener" target="_blank">

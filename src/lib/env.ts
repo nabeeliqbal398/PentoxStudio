@@ -50,6 +50,13 @@ const schema = z.object({
   EMAIL_FROM_NAME: optional(z.string()),
   LEAD_NOTIFY_TO: optional(z.email('must be an email address')),
 
+  // Newsletter sending limits (Phase 8). Defaults suit a personal Gmail account; raise them for
+  // Google Workspace or a Hostinger mailbox (check your provider's hourly/daily limits).
+  NEWSLETTER_BATCH_SIZE: optional(z.coerce.number().int().min(1).max(500)),
+  NEWSLETTER_BATCH_DELAY_SECONDS: optional(z.coerce.number().int().min(0).max(3600)),
+  NEWSLETTER_MESSAGE_DELAY_MS: optional(z.coerce.number().int().min(0).max(60000)),
+  NEWSLETTER_DAILY_LIMIT: optional(z.coerce.number().int().min(1).max(100000)),
+
   // Spam protection (Phase 5)
   TURNSTILE_SITE_KEY: optional(z.string()),
   TURNSTILE_SECRET: optional(z.string()),

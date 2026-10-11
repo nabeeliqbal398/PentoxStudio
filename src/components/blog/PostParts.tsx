@@ -7,7 +7,9 @@ import type { TocItem } from '@/lib/toc'
 import type { Author, Service, SiteText } from '@/payload-types'
 
 import { CmsImage } from '../ui/CmsImage'
+import { NewsletterSignup } from '../newsletter/NewsletterSignup'
 import { Cta } from '../ui/Cta'
+import { Section } from '../ui/Section'
 
 type Labels = NonNullable<SiteText['blog']>
 
@@ -124,10 +126,13 @@ export function MidCta({ labels }: { labels?: Labels | null }) {
   )
 }
 
-/**
- * Placeholder for the newsletter signup form (Phase 8: double opt-in subscribe form). It renders
- * nothing until then, but the post page already reserves its place after the related posts.
- */
+/** Newsletter signup under the article (double opt-in). */
 export function NewsletterSlot() {
-  return null
+  return (
+    <Section className="max-w-2xl">
+      <div className="rounded-2xl bg-white p-6 shadow-[0_8px_30px_rgba(28,36,75,.08)] md:p-8">
+        <NewsletterSignup source="blog-post" />
+      </div>
+    </Section>
+  )
 }

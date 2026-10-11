@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import type { FooterInfo, MenuGroup, SiteInfo } from '@/lib/site-data'
 
+import { NewsletterSignup } from '../newsletter/NewsletterSignup'
 import { CookieSettingsButton } from './CookieConsent'
 import { LOGO_FALLBACK, LOGO_WHITE_FALLBACK, Logo } from './Logo'
 import { SmartLink } from './SmartLink'
@@ -185,6 +186,13 @@ export function SiteFooter({
               )}
             </div>
           )}
+        </div>
+
+        {/* Newsletter signup (double opt-in) */}
+        <div className="border-t border-white/15">
+          <div className="mx-auto max-w-site px-4 py-8 md:max-w-2xl">
+            <NewsletterSignup heading={footer.newsletter?.heading} source="footer" text={footer.newsletter?.text} tone="dark" />
+          </div>
         </div>
 
         {(copyright || footer.legalLinks.length > 0 || analyticsEnabled) && (
