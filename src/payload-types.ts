@@ -215,7 +215,8 @@ export interface Page {
     | 'services-hub'
     | 'industries-hub'
     | 'free-audit'
-    | 'cost-estimator';
+    | 'cost-estimator'
+    | 'portfolio';
   /**
    * Drafted or placeholder content that the client still has to approve.
    */
@@ -715,6 +716,10 @@ export interface Client {
    * Tick only when the client agreed to show their name/logo publicly.
    */
   permissionConfirmed?: boolean | null;
+  /**
+   * Optional. When set, the logo grid shows the two groups with their own labels.
+   */
+  group?: ('international' | 'domestic') | null;
   featured?: boolean | null;
   /**
    * Lower numbers appear first.
@@ -2161,6 +2166,7 @@ export interface ClientsSelect<T extends boolean = true> {
   logo?: T;
   website?: T;
   permissionConfirmed?: T;
+  group?: T;
   featured?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -2644,6 +2650,12 @@ export interface Home {
     trustLine?: string | null;
     image?: (number | null) | Media;
   };
+  clientsSection?: {
+    heading?: string | null;
+    intro?: string | null;
+    internationalLabel?: string | null;
+    domesticLabel?: string | null;
+  };
   servicesSection?: {
     heading?: string | null;
     intro?: string | null;
@@ -2867,6 +2879,26 @@ export interface SiteText {
     featuredProjects?: string | null;
     faq?: string | null;
     noIndustries?: string | null;
+  };
+  portfolio?: {
+    breadcrumb?: string | null;
+    all?: string | null;
+    filterLabel?: string | null;
+    empty?: string | null;
+    workedOn?: string | null;
+    challenge?: string | null;
+    solution?: string | null;
+    results?: string | null;
+    gallery?: string | null;
+    tools?: string | null;
+    testimonial?: string | null;
+    proof?: string | null;
+    nextProject?: string | null;
+    visitProject?: string | null;
+    openImage?: string | null;
+    close?: string | null;
+    previous?: string | null;
+    next?: string | null;
   };
   contact?: {
     details?: string | null;
@@ -3152,6 +3184,14 @@ export interface HomeSelect<T extends boolean = true> {
         trustLine?: T;
         image?: T;
       };
+  clientsSection?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        internationalLabel?: T;
+        domesticLabel?: T;
+      };
   servicesSection?:
     | T
     | {
@@ -3345,6 +3385,28 @@ export interface SiteTextSelect<T extends boolean = true> {
         featuredProjects?: T;
         faq?: T;
         noIndustries?: T;
+      };
+  portfolio?:
+    | T
+    | {
+        breadcrumb?: T;
+        all?: T;
+        filterLabel?: T;
+        empty?: T;
+        workedOn?: T;
+        challenge?: T;
+        solution?: T;
+        results?: T;
+        gallery?: T;
+        tools?: T;
+        testimonial?: T;
+        proof?: T;
+        nextProject?: T;
+        visitProject?: T;
+        openImage?: T;
+        close?: T;
+        previous?: T;
+        next?: T;
       };
   contact?:
     | T

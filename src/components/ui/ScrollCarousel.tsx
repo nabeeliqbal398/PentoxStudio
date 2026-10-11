@@ -12,11 +12,14 @@ export function ScrollCarousel({
   label,
   perView = 'multi',
   tone = 'dark',
+  controls = true,
 }: {
   children: ReactNode
   label: string
   perView?: 'single' | 'multi'
   tone?: 'dark' | 'light'
+  /** Previous/next buttons; pass false when there is only one item. */
+  controls?: boolean
 }) {
   const track = useRef<HTMLUListElement>(null)
 
@@ -43,6 +46,7 @@ export function ScrollCarousel({
       >
         {children}
       </ul>
+      {controls && (
       <div className="mt-4 flex justify-center gap-3">
         <button
           aria-label="Previous"
@@ -61,6 +65,7 @@ export function ScrollCarousel({
           <ChevronRight aria-hidden="true" className="size-5" />
         </button>
       </div>
+      )}
     </div>
   )
 }

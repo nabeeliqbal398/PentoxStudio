@@ -121,6 +121,8 @@ export default buildConfig({
     ? nodemailerAdapter({
         defaultFromAddress: env.EMAIL_FROM!,
         defaultFromName: env.EMAIL_FROM_NAME ?? 'Pentox Studio',
+        // Do not probe the SMTP server on every start (CLI scripts, builds); send failures are handled per lead.
+        skipVerify: true,
         transportOptions: {
           host: env.SMTP_HOST,
           port: env.SMTP_PORT ?? 587,

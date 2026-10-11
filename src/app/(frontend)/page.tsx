@@ -90,7 +90,7 @@ export default async function HomePage() {
       <DraftPreview banner={text.common?.previewBanner} enabled={viewer.draft} />
       <JsonLd data={organizationJsonLd(site)} />
       <JsonLd data={websiteJsonLd(site)} />
-      {reviews.length > 0 && on('testimonials') && testimonials.length > 0 &&
+      {reviews.length > 0 && on('testimonials') &&
         reviewsJsonLd(reviews).map((review, index) => <JsonLd data={review} key={index} />)}
 
       {/* 1. Hero */}
@@ -112,7 +112,15 @@ export default async function HomePage() {
       )}
 
       {/* 2. Client logo strip */}
-      {on('clientLogos') && <ClientLogos clients={clients} />}
+      {on('clientLogos') && (
+        <ClientLogos
+          clients={clients}
+          domesticLabel={home.clientsSection?.domesticLabel}
+          heading={home.clientsSection?.heading}
+          intro={home.clientsSection?.intro}
+          internationalLabel={home.clientsSection?.internationalLabel}
+        />
+      )}
 
       {/* 3. Services */}
       {on('services') && (

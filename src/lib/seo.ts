@@ -148,3 +148,45 @@ export const webPageJsonLd = (page: { name: string; path: string; description?: 
     url: absoluteUrl(page.path),
     isPartOf: { '@id': `${env.NEXT_PUBLIC_SITE_URL}/#website` },
   })
+
+/** Case study as a CreativeWork made by Pentox. Only fields that exist in the CMS are emitted. */
+export const creativeWorkJsonLd = (project: {
+  name: string
+  description?: string | null
+  path: string
+  image?: string
+  completedAt?: string | null
+  keywords?: string[]
+  client?: string
+  projectUrl?: string
+}) =>
+  compact({
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: project.name,
+    description: project.description ?? undefined,
+    url: absoluteUrl(project.path),
+    image: project.image ? absoluteUrl(project.image) : undefined,
+    dateCreated: project.completedAt ?? undefined,
+    keywords: project.keywords?.join(', '),
+    creator: { '@id': ORG_ID },
+    ...(project.client ? { sourceOrganization: { '@type': 'Organization', name: project.client } } : {}),
+    ...(project.projectUrl ? { sameAs: project.projectUrl } : {}),
+  })
+
+/** The portfolio listing as a CollectionPage with an ItemList of its projects. */
+export const portfolioListJsonLd = (items: { name: string; path: string }[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Portfolio',
+  url: absoluteUrl('/portfolio/'),
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: absoluteUrl(item.path),
+      name: item.name,
+    })),
+  },
+})

@@ -4,13 +4,19 @@ export type SizeName = 'thumbnail' | 'card' | 'portrait' | 'hero' | 'og'
 
 export type Img = { src: string; alt: string; width: number; height: number }
 
+/**
+ * Payload appends a trailing slash to media URLs when `trailingSlash` is on. The file route works with or
+ * without it, but next/image refuses a source ending in a slash (HTTP 400), so it is removed here.
+ */
+export const mediaSrc = (url: string) => url.replace(/\/+$/, '')
+
 /** Populated media docs only (an unpopulated id or a missing file gives undefined). */
 export function toImg(media: number | Media | null | undefined, size?: SizeName): Img | undefined {
   if (!media || typeof media !== 'object') return undefined
   const sized = size ? media.sizes?.[size] : undefined
   const source = sized?.url && sized.width && sized.height ? sized : media
   if (!source.url || !source.width || !source.height) return undefined
-  return { src: source.url, alt: media.alt, width: source.width, height: source.height }
+  return { src: mediaSrc(source.url), alt: media.alt, width: source.width, height: source.height }
 }
 
 /** Keeps only populated docs from a relationship that may hold ids (unreadable or draft docs). */

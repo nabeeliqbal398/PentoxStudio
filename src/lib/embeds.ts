@@ -40,3 +40,11 @@ export function mapEmbedSrc(value: string | undefined): string | undefined {
     return undefined
   }
 }
+
+const YOUTUBE_ID = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([\w-]{11})/
+
+/** Privacy-enhanced embed URL for a YouTube link, or undefined if it is not a YouTube video. */
+export function youtubeEmbedUrl(value: string | null | undefined): string | undefined {
+  const id = value ? YOUTUBE_ID.exec(value)?.[1] : undefined
+  return id ? `https://www.youtube-nocookie.com/embed/${id}` : undefined
+}

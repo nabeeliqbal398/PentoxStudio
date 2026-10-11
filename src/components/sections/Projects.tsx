@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
-import { one, toImg } from '@/lib/media'
+import { toCard } from '@/lib/portfolio'
 import type { Portfolio } from '@/payload-types'
 
-import { CmsImage } from '../ui/CmsImage'
+import { ProjectCardView } from './ProjectCard'
 import { Cta } from '../ui/Cta'
 import { ScrollCarousel } from '../ui/ScrollCarousel'
 import { Section } from '../ui/Section'
@@ -12,20 +12,9 @@ import { SectionHeading } from '../ui/SectionHeading'
 const projectHref = (project: Portfolio) => `/portfolio/${project.slug}/`
 
 function ProjectCard({ project }: { project: Portfolio }) {
-  const image = toImg(one(project.cardImage), 'portrait') ?? toImg(one(project.heroImage), 'card')
-  const client = one(project.client)
   return (
-    <li className="relative overflow-hidden rounded-2xl bg-white text-navy">
-      {image && <CmsImage className="aspect-[2/3] w-full object-cover" img={image} sizes="(min-width: 1024px) 30vw, 85vw" />}
-      <div className="p-5">
-        {client && <p className="text-xs font-semibold uppercase tracking-widest text-brand">{client.name}</p>}
-        <h3 className="mt-1 font-heading text-lg font-semibold">
-          <Link className="after:absolute after:inset-0 after:content-['']" href={projectHref(project)}>
-            {project.title}
-          </Link>
-        </h3>
-        <p className="mt-2 line-clamp-3 text-sm text-body">{project.summary}</p>
-      </div>
+    <li>
+      <ProjectCardView card={toCard(project)} />
     </li>
   )
 }
@@ -44,7 +33,8 @@ export function ProjectsCarousel({
 }) {
   if (!projects.length) return null
   return (
-    <section aria-labelledby={heading ? id : undefined} className="bg-navy py-14 text-white md:py-20">
+    // The "All projects" pill straddles the panel's bottom edge (capture/06 §4.2), so the section keeps room below it.
+    <section aria-labelledby={heading ? id : undefined} className="relative mb-10 bg-navy pb-16 pt-14 text-white md:pt-20">
       <div className="mx-auto max-w-site px-4">
         <div id={id}>
           <SectionHeading heading={heading} tone="light" />
@@ -54,9 +44,14 @@ export function ProjectsCarousel({
             <ProjectCard key={project.id} project={project} />
           ))}
         </ScrollCarousel>
-        <div className="mt-8 text-center">
-          <Cta label={allLabel} url="/portfolio/" variant="outlineLight" />
-        </div>
+      </div>
+      <div className="absolute inset-x-0 bottom-0 flex translate-y-1/2 justify-center">
+        <Cta
+          className="border-[1.5px] border-navy !text-navy shadow-soft hover:!border-brand hover:!text-brand"
+          label={allLabel}
+          url="/portfolio/"
+          variant="light"
+        />
       </div>
     </section>
   )

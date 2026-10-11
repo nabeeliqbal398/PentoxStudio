@@ -13,6 +13,7 @@ export type SeedPage = {
     | 'industries-hub'
     | 'free-audit'
     | 'cost-estimator'
+    | 'portfolio'
   excerpt?: string
   hero?: { eyebrow?: string; heading?: string; intro?: string }
   content?: unknown[]
@@ -142,6 +143,18 @@ export const pages: SeedPage[] = [
         { icon: 'Search', title: 'Where you are today', description: 'Your website, marketing and current results.' },
         { icon: 'ListChecks', title: 'Next steps', description: 'The services that fit, and how we would start.' },
       ],
+    },
+    reviewNote: 'TODO: client review.',
+  },
+  {
+    slug: 'portfolio',
+    title: 'Portfolio',
+    template: 'portfolio',
+    excerpt: 'Selected projects by Pentox Studio.',
+    hero: {
+      eyebrow: 'Our Projects',
+      heading: 'Work we are proud of',
+      intro: 'A selection of the projects we have worked on.',
     },
     reviewNote: 'TODO: client review.',
   },
@@ -333,6 +346,26 @@ export const siteText = {
     faq: 'Frequently asked questions',
     noIndustries: 'Industry pages are coming soon.',
   },
+  portfolio: {
+    breadcrumb: 'Portfolio',
+    all: 'All',
+    filterLabel: 'Filter projects by category',
+    empty: 'No projects in this category yet.',
+    workedOn: 'We worked on:',
+    challenge: 'The challenge',
+    solution: 'Our solution',
+    results: 'Results',
+    gallery: 'Gallery',
+    tools: 'Tools used',
+    testimonial: 'What the client says',
+    proof: 'What clients say',
+    nextProject: 'Next project',
+    visitProject: 'Visit the project',
+    openImage: 'Open image',
+    close: 'Close',
+    previous: 'Previous image',
+    next: 'Next image',
+  },
   contact: {
     details: 'Contact information',
     phone: 'Phone',
@@ -420,3 +453,15 @@ export const leadForms = {
     ],
   },
 }
+
+// Portfolio filter pills (capture/06 §4.6). Only categories that have a published project are shown.
+export const portfolioCategories = [
+  'Web Development',
+  'Social Media',
+  'SEO',
+  'Graphic Design',
+  'Branding',
+  'Video',
+  'Printing & Packaging',
+  '3D',
+]

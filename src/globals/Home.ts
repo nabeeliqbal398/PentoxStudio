@@ -75,6 +75,17 @@ export const Home: GlobalConfig = {
       ],
     },
     {
+      name: 'clientsSection',
+      type: 'group',
+      label: 'Client logos',
+      fields: [
+        { name: 'heading', type: 'text' },
+        { name: 'intro', type: 'textarea' },
+        { name: 'internationalLabel', type: 'text' },
+        { name: 'domesticLabel', type: 'text' },
+      ],
+    },
+    {
       name: 'servicesSection',
       type: 'group',
       label: 'Services section',

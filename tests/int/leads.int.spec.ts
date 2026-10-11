@@ -102,7 +102,8 @@ describe('createLead (database)', () => {
   let payload: Payload
   const tag = `itest-${Date.now()}`
   const ip = `203.0.113.${Math.floor(Math.random() * 200) + 1}`
-  const ctx = (over: Partial<LeadContext> = {}): LeadContext => ({ ip, ...over })
+  // Emails are skipped here (defer does nothing) so these tests never depend on the SMTP settings in .env.
+  const ctx = (over: Partial<LeadContext> = {}): LeadContext => ({ ip, defer: () => {}, ...over })
 
   beforeAll(async () => {
     payload = await getPayload({ config: await config })
@@ -112,7 +113,7 @@ describe('createLead (database)', () => {
     await payload.delete({ collection: 'leads', where: { ipHash: { equals: hashIp(ip) } }, overrideAccess: true })
   })
 
-  it('saves the lead with attribution even when no email is configured', async () => {
+  it('saves the lead with its first-touch attribution', async () => {
     const result = await createLead(
       payload,
       { source: 'contact-form', name: `${tag} A`, email: 'itest@example.com', message: 'hello' },
@@ -126,7 +127,6 @@ describe('createLead (database)', () => {
     const lead = await payload.findByID({ collection: 'leads', id: result.ok ? result.leadId! : 0, overrideAccess: true })
     expect(lead.attribution).toMatchObject({ utmSource: 'google', utmCampaign: 'spring', landingPage: '/services/seo/' })
     expect(lead.status).toBe('new')
-    expect(lead.emailLog?.autoReply).toBeDefined() // 'skipped' without SMTP, 'sent'/'failed' with it
   })
 
   it('silently drops honeypot and instant submissions', async () => {

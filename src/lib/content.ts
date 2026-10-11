@@ -13,6 +13,7 @@ import type {
   Package,
   Page,
   Portfolio,
+  PortfolioCategory,
   Post,
   Review,
   Service,
@@ -59,7 +60,7 @@ export async function getViewer(): Promise<Viewer> {
 // Single documents (services, industries, pages)
 // ---------------------------------------------------------------------------
 
-type Docs = { services: Service; industries: Industry; pages: Page }
+type Docs = { services: Service; industries: Industry; pages: Page; portfolio: Portfolio }
 type DocCollection = keyof Docs
 type DocField = 'slug' | 'path'
 
@@ -69,6 +70,9 @@ const findPublished = {
     findOne('industries', field, value),
   ),
   pages: cached('doc:pages', ['pages'], (field: DocField, value: string) => findOne('pages', field, value)),
+  portfolio: cached('doc:portfolio', ['portfolio', 'testimonials', 'clients'], (field: DocField, value: string) =>
+    findOne('portfolio', field, value),
+  ),
 }
 
 async function findOne<C extends DocCollection>(
@@ -111,6 +115,10 @@ export async function getPage(slug: string, viewer: Viewer): Promise<Page | null
 
 export async function getIndustry(slug: string, viewer: Viewer): Promise<Industry | null> {
   return getDoc('industries', 'slug', slug, viewer)
+}
+
+export async function getProject(slug: string, viewer: Viewer): Promise<Portfolio | null> {
+  return getDoc('portfolio', 'slug', slug, viewer)
 }
 
 /** `path` is the public URL path, e.g. /services/seo/local-seo/. Sub-services need a visible parent. */
@@ -200,6 +208,58 @@ export const getPublishedIndustries = cached('industries', ['industries'], async
   })
   return docs
 })
+
+/**
+ * Every project for the portfolio page and the next-project card. Visitors get published projects only
+ * (cached). An editor previewing from the admin also sees drafts, so unpublished work can be checked in context.
+ */
+const getPublishedProjectList = cached(
+  'project-list',
+  ['portfolio', 'portfolio-categories', 'services'],
+  async (): Promise<Portfolio[]> => {
+    const payload = await getPayload({ config })
+    const { docs } = await payload.find({
+      collection: 'portfolio',
+      where: published,
+      depth: 1,
+      pagination: false,
+      sort: 'sortOrder',
+      overrideAccess: false,
+    })
+    return docs
+  },
+)
+
+export async function getProjectList(viewer: Viewer): Promise<Portfolio[]> {
+  if (!viewer.draft) return getPublishedProjectList()
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'portfolio',
+    draft: true,
+    depth: 1,
+    pagination: false,
+    sort: 'sortOrder',
+    user: viewer.user,
+    overrideAccess: false,
+  })
+  return docs
+}
+
+export const getPortfolioCategories = cached(
+  'portfolio-categories',
+  ['portfolio-categories'],
+  async (): Promise<PortfolioCategory[]> => {
+    const payload = await getPayload({ config })
+    const { docs } = await payload.find({
+      collection: 'portfolio-categories',
+      depth: 0,
+      pagination: false,
+      sort: 'sortOrder',
+      overrideAccess: false,
+    })
+    return docs
+  },
+)
 
 export type ProjectQuery = { featured?: boolean; serviceId?: number; industryId?: number; limit?: number }
 

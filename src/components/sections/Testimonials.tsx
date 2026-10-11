@@ -62,8 +62,8 @@ function TestimonialSlide({ testimonial }: { testimonial: Testimonial }) {
 }
 
 /**
- * Real testimonials only: the section does not render without at least one verified testimonial.
- * Genuine reviews (Google, Clutch, ...) and platform badges are shown beneath when they exist.
+ * Real entries only: verified testimonials, genuine reviews (Google, Clutch, ...) and platform badges.
+ * The section does not render when all three are empty.
  */
 export function Testimonials({
   testimonials,
@@ -78,7 +78,7 @@ export function Testimonials({
   heading?: string | null
   id: string
 }) {
-  if (!testimonials.length) return null
+  if (!testimonials.length && !reviews.length && !badges.length) return null
   const badgeItems = badges.flatMap((badge) => {
     const img = toImg(one(badge.image), 'card')
     return img ? [{ badge, img }] : []
@@ -88,11 +88,13 @@ export function Testimonials({
       <div id={id}>
         <SectionHeading heading={heading} />
       </div>
-      <ScrollCarousel label={heading ?? 'Testimonials'} perView="single">
-        {testimonials.map((testimonial) => (
-          <TestimonialSlide key={testimonial.id} testimonial={testimonial} />
-        ))}
-      </ScrollCarousel>
+      {testimonials.length > 0 && (
+        <ScrollCarousel controls={testimonials.length > 1} label={heading ?? 'Testimonials'} perView="single">
+          {testimonials.map((testimonial) => (
+            <TestimonialSlide key={testimonial.id} testimonial={testimonial} />
+          ))}
+        </ScrollCarousel>
+      )}
 
       {reviews.length > 0 && (
         <ul className="mt-10 grid gap-4 md:grid-cols-3">

@@ -35,6 +35,15 @@ export const Clients: CollectionConfig = {
       index: true,
       admin: { description: 'Tick only when the client agreed to show their name/logo publicly.' },
     },
+    {
+      name: 'group',
+      type: 'select',
+      options: [
+        { label: 'International', value: 'international' },
+        { label: 'Domestic', value: 'domestic' },
+      ],
+      admin: { description: 'Optional. When set, the logo grid shows the two groups with their own labels.' },
+    },
     { name: 'featured', type: 'checkbox', defaultValue: false },
     sortOrderField,
   ],

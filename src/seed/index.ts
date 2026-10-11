@@ -3,7 +3,7 @@ import type { Payload } from 'payload'
 import { DEFAULT_SYSTEM_PROMPT } from '../globals/ChatbotSettings'
 import { REVIEW_NOTE } from '../fields/review'
 import { faqs, industries, menuOrder, redirects, serviceGroups } from './data/content'
-import { leadForms, pages, siteText } from './data/pages'
+import { leadForms, pages, portfolioCategories, siteText } from './data/pages'
 import { services, type GroupKey } from './data/services'
 import { ensure, ensureGlobal, fillGlobal, type Id, type SeedContext } from './helpers'
 import { richText } from './lexical'
@@ -32,6 +32,19 @@ async function seedPages(ctx: SeedContext) {
         reviewNote: page.reviewNote,
       },
       { draft: page.draft, label: page.slug },
+    )
+  }
+}
+
+async function seedPortfolioCategories(ctx: SeedContext) {
+  for (const [index, title] of portfolioCategories.entries()) {
+    const slug = title.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    await ensure(
+      ctx,
+      'portfolio-categories',
+      { slug: { equals: slug } },
+      { title, slug, generateSlug: false, sortOrder: (index + 1) * 10 },
+      { label: slug },
     )
   }
 }
@@ -317,6 +330,11 @@ async function seedGlobalDefaults(ctx: SeedContext) {
 
   await fillGlobal(ctx, 'home', {
     projectsSection: { heading: 'Featured projects' },
+    clientsSection: {
+      heading: 'Our clients',
+      internationalLabel: 'International clients',
+      domesticLabel: 'Domestic clients',
+    },
     resultsSection: { heading: 'Results' },
     industriesSection: {
       heading: 'Industries we serve',
@@ -344,6 +362,7 @@ export async function seed(payload: Payload) {
   await seedPackages(ctx, serviceIds)
   await seedEstimatorRules(ctx, serviceIds)
   await seedRedirects(ctx)
+  await seedPortfolioCategories(ctx)
   await seedPages(ctx)
   await seedGlobals(ctx, groups, serviceIds)
   await seedGlobalDefaults(ctx)

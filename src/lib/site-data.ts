@@ -5,6 +5,7 @@ import config from '@payload-config'
 
 import type { Media } from '../payload-types'
 import { env } from './env'
+import { mediaSrc } from './media'
 import { safeLink, type SafeLink } from './links'
 
 // Everything the site chrome (header, footer, menus, floating buttons) shows comes from here,
@@ -82,7 +83,7 @@ const safeHttps = (value: string | null | undefined): string | undefined => {
 
 function toImage(media: number | Media | null | undefined): ImageInfo | undefined {
   if (!media || typeof media !== 'object' || !media.url || !media.width || !media.height) return undefined
-  return { url: media.url, alt: media.alt, width: media.width, height: media.height }
+  return { url: mediaSrc(media.url), alt: media.alt, width: media.width, height: media.height }
 }
 
 function toNavLink(item: { label: string; url: string; openInNewTab?: boolean | null }): NavLink | undefined {
