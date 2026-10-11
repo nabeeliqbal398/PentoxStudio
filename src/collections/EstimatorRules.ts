@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdminOrEditor } from '../access'
 import { reviewFields } from '../fields/review'
+import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
 
 // Price rules for the cost estimator wizard. Read server-side only, never exposed over the public API.
@@ -18,6 +19,10 @@ export const EstimatorRules: CollectionConfig = {
     create: isAdminOrEditor,
     update: isAdminOrEditor,
     delete: isAdminOrEditor,
+  },
+  hooks: {
+    afterChange: [revalidateAfterChange('estimator-rules')],
+    afterDelete: [revalidateAfterDelete('estimator-rules')],
   },
   fields: [
     { name: 'title', type: 'text', required: true },

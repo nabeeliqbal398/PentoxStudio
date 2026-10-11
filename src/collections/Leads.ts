@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin, isAdminField, isAdminOrEditor } from '../access'
 import { adminGroups } from '../lib/adminGroups'
+import { exportLeadsEndpoint } from '../lib/leads/export'
 
 export const leadSources = [
   { label: 'Contact form', value: 'contact-form' },
@@ -13,7 +14,7 @@ export const leadSources = [
   { label: 'Manual / other', value: 'manual' },
 ] as const
 
-// Created by the public endpoints (Phase 5) through the Local API; never writable by the public.
+// Created by the public lead forms (src/lib/leads/process.ts) through the Local API; never writable by the public.
 export const Leads: CollectionConfig = {
   slug: 'leads',
   labels: { singular: 'Lead', plural: 'Leads' },
@@ -22,7 +23,9 @@ export const Leads: CollectionConfig = {
     defaultColumns: ['name', 'email', 'source', 'status', 'services', 'createdAt'],
     group: adminGroups.leads,
     listSearchableFields: ['name', 'email', 'phone', 'company'],
+    components: { beforeListTable: ['/components/admin/ExportLeadsButton#ExportLeadsButton'] },
   },
+  endpoints: [exportLeadsEndpoint],
   defaultSort: '-createdAt',
   access: {
     create: isAdminOrEditor,
@@ -113,6 +116,26 @@ export const Leads: CollectionConfig = {
         { name: 'referrer', type: 'text' },
         { name: 'landingPage', type: 'text' },
       ],
+    },
+    { name: 'submittedPath', type: 'text', admin: { description: 'Page the form was sent from.' } },
+    {
+      name: 'emailLog',
+      type: 'group',
+      label: 'Email delivery',
+      admin: { description: 'Whether the auto-reply and the team alert went out (set automatically).' },
+      fields: [
+        { name: 'autoReply', type: 'select', options: ['sent', 'skipped', 'failed'], admin: { readOnly: true } },
+        { name: 'alert', type: 'select', options: ['sent', 'skipped', 'failed'], admin: { readOnly: true } },
+        { name: 'error', type: 'text', admin: { readOnly: true } },
+      ],
+    },
+    {
+      // SHA-256 of the visitor IP + server secret, used only for rate limiting. Never exposed over the API.
+      name: 'ipHash',
+      type: 'text',
+      index: true,
+      access: { read: () => false, update: () => false },
+      admin: { hidden: true },
     },
     {
       name: 'consent',

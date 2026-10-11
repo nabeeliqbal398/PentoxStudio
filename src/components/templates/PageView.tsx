@@ -1,3 +1,7 @@
+import { AuditFormSlot } from '@/components/forms/AuditFormSlot'
+import { EstimatorSlot } from '@/components/forms/EstimatorSlot'
+import { LeadFormSlot } from '@/components/forms/LeadFormSlot'
+import { ConversionEvents } from '@/components/forms/Trackers'
 import { BookingEmbed, MapEmbed } from '@/components/sections/Embeds'
 import { CardsGrid } from '@/components/sections/CardsGrid'
 import { ClientLogos } from '@/components/sections/ClientLogos'
@@ -98,14 +102,16 @@ function ContactPage({ page, site, text, path }: Ctx) {
       <PageHero eyebrow={page.hero?.eyebrow} heading={page.hero?.heading || page.title} intro={page.hero?.intro} />
       <Section className="!pt-0">
         <div className="grid gap-8 lg:grid-cols-2">
-          {/* The multi-step lead form goes in this column in Phase 5; until then, direct contact. */}
-          <div className="rounded-2xl bg-white p-6 shadow-[0_8px_30px_rgba(28,36,75,.08)] md:p-8">
-            {text.contact?.reachUs && (
-              <h2 className="mb-5 font-heading text-2xl font-semibold text-navy">{text.contact.reachUs}</h2>
-            )}
-            <div className="flex flex-wrap gap-3">
-              <ContactActions site={site} text={text} />
-              <Cta label={text.common?.bookCall} url="/book-a-call/" variant="outline" />
+          <div className="space-y-6">
+            <LeadFormSlot source="contact-form" />
+            <div>
+              {text.contact?.reachUs && (
+                <h2 className="mb-3 font-heading text-lg font-semibold text-navy">{text.contact.reachUs}</h2>
+              )}
+              <div className="flex flex-wrap gap-3">
+                <ContactActions site={site} text={text} />
+                <Cta label={text.common?.bookCall} url="/book-a-call/" variant="outline" />
+              </div>
             </div>
           </div>
           <ContactDetails labels={text.contact} site={site} />
@@ -159,7 +165,7 @@ async function BookCallPage({ page, site, text, path }: Ctx) {
         testimonials={shown}
       />
       <FaqSection faqs={populated(page.faqs)} heading={text.contact?.faq} id="book-faq" />
-      <CtaBand band={band} override={page.cta} />
+      <CtaBand band={band} override={page.cta} withForm={false} />
     </>
   )
 }
@@ -170,6 +176,7 @@ async function ThankYouPage({ page, site, text }: Ctx) {
   const projects = await getProjects({ featured: true, limit: 3 })
   return (
     <>
+      <ConversionEvents />
       <PageHero
         actions={
           <>
@@ -189,6 +196,48 @@ async function ThankYouPage({ page, site, text }: Ctx) {
         items={page.highlights?.items}
       />
       <ProjectGrid heading={text.contact?.thankYouProjects} id="thanks-projects" projects={projects} />
+    </>
+  )
+}
+
+async function FreeAuditPage({ page, text, path }: Ctx) {
+  // Hero + what you get, the short audit form, then FAQ. A sample audit preview is added once a real one exists.
+  const [band] = await Promise.all([getCtaBand()])
+  return (
+    <>
+      <JsonLd data={webPageJsonLd({ name: page.title, path, description: page.excerpt })} />
+      <PageHero eyebrow={page.hero?.eyebrow} heading={page.hero?.heading || page.title} intro={page.hero?.intro} />
+      <Section className="!pt-0">
+        <div className="mx-auto max-w-2xl">
+          <AuditFormSlot />
+        </div>
+      </Section>
+      <CardsGrid
+        heading={page.highlights?.heading}
+        id="audit-gets"
+        intro={page.highlights?.intro}
+        items={page.highlights?.items}
+      />
+      <FaqSection faqs={populated(page.faqs)} heading={text.contact?.faq} id="audit-faq" />
+      <CtaBand band={band} override={page.cta} withForm={false} />
+    </>
+  )
+}
+
+function CostEstimatorPage({ page, text, path }: Ctx) {
+  return (
+    <>
+      <JsonLd data={webPageJsonLd({ name: page.title, path, description: page.excerpt })} />
+      <PageHero eyebrow={page.hero?.eyebrow} heading={page.hero?.heading || page.title} intro={page.hero?.intro} />
+      <EstimatorSlot />
+      <CardsGrid
+        heading={page.highlights?.heading}
+        id="estimator-affects"
+        intro={page.highlights?.intro}
+        items={page.highlights?.items}
+      />
+      <Body page={page} />
+      <FaqSection faqs={populated(page.faqs)} heading={text.contact?.faq} id="estimator-faq" />
     </>
   )
 }
@@ -215,7 +264,11 @@ export async function PageView({ page, viewer, path }: { page: Page; viewer: Vie
           ? BookCallPage
           : page.template === 'thank-you'
             ? ThankYouPage
-            : DefaultPage
+            : page.template === 'free-audit'
+              ? FreeAuditPage
+              : page.template === 'cost-estimator'
+                ? CostEstimatorPage
+                : DefaultPage
 
   return (
     <>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Poppins } from 'next/font/google'
 import React from 'react'
 
+import { AttributionTracker, ClickTracker } from '@/components/forms/Trackers'
 import { Analytics } from '@/components/site/Analytics'
 import { BackToTop } from '@/components/site/BackToTop'
 import { BackgroundShapes } from '@/components/site/BackgroundShapes'
@@ -68,6 +69,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </div>
         <WhatsAppButton whatsapp={site.whatsapp} />
         <BackToTop />
+        <AttributionTracker />
+        <ClickTracker />
         <MobileStickyBar actions={actions} header={header} site={site} />
         {analyticsEnabled && (
           <>

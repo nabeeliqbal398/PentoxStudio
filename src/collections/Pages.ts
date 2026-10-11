@@ -53,6 +53,8 @@ export const Pages: CollectionConfig = {
         { label: 'Thank you (noindex)', value: 'thank-you' },
         { label: 'Services hub', value: 'services-hub' },
         { label: 'Industries hub', value: 'industries-hub' },
+        { label: 'Free audit', value: 'free-audit' },
+        { label: 'Cost estimator', value: 'cost-estimator' },
       ],
       admin: { position: 'sidebar', description: 'Controls the page layout.' },
     },

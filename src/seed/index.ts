@@ -3,7 +3,7 @@ import type { Payload } from 'payload'
 import { DEFAULT_SYSTEM_PROMPT } from '../globals/ChatbotSettings'
 import { REVIEW_NOTE } from '../fields/review'
 import { faqs, industries, menuOrder, redirects, serviceGroups } from './data/content'
-import { pages, siteText } from './data/pages'
+import { leadForms, pages, siteText } from './data/pages'
 import { services, type GroupKey } from './data/services'
 import { ensure, ensureGlobal, fillGlobal, type Id, type SeedContext } from './helpers'
 import { richText } from './lexical'
@@ -304,6 +304,7 @@ async function seedGlobals(
 // Defaults added in Phase 4. Filled field by field, so editors' own values are never replaced.
 async function seedGlobalDefaults(ctx: SeedContext) {
   await fillGlobal(ctx, 'site-text', siteText)
+  await fillGlobal(ctx, 'lead-forms', leadForms)
 
   await fillGlobal(ctx, 'footer', {
     ctaBand: {

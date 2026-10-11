@@ -142,6 +142,7 @@ export interface Config {
     stats: Stat;
     'site-settings': SiteSetting;
     'site-text': SiteText;
+    'lead-forms': LeadForm;
     header: Header;
     footer: Footer;
     'chatbot-settings': ChatbotSetting;
@@ -151,6 +152,7 @@ export interface Config {
     stats: StatsSelect<false> | StatsSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'site-text': SiteTextSelect<false> | SiteTextSelect<true>;
+    'lead-forms': LeadFormsSelect<false> | LeadFormsSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'chatbot-settings': ChatbotSettingsSelect<false> | ChatbotSettingsSelect<true>;
@@ -204,7 +206,16 @@ export interface Page {
   /**
    * Controls the page layout.
    */
-  template: 'default' | 'about' | 'contact' | 'book-a-call' | 'thank-you' | 'services-hub' | 'industries-hub';
+  template:
+    | 'default'
+    | 'about'
+    | 'contact'
+    | 'book-a-call'
+    | 'thank-you'
+    | 'services-hub'
+    | 'industries-hub'
+    | 'free-audit'
+    | 'cost-estimator';
   /**
    * Drafted or placeholder content that the client still has to approve.
    */
@@ -1274,6 +1285,19 @@ export interface Lead {
     referrer?: string | null;
     landingPage?: string | null;
   };
+  /**
+   * Page the form was sent from.
+   */
+  submittedPath?: string | null;
+  /**
+   * Whether the auto-reply and the team alert went out (set automatically).
+   */
+  emailLog?: {
+    autoReply?: ('sent' | 'skipped' | 'failed') | null;
+    alert?: ('sent' | 'skipped' | 'failed') | null;
+    error?: string | null;
+  };
+  ipHash?: string | null;
   consent?: {
     privacyAccepted?: boolean | null;
     subscribeRequested?: boolean | null;
@@ -2286,6 +2310,15 @@ export interface LeadsSelect<T extends boolean = true> {
         referrer?: T;
         landingPage?: T;
       };
+  submittedPath?: T;
+  emailLog?:
+    | T
+    | {
+        autoReply?: T;
+        alert?: T;
+        error?: T;
+      };
+  ipHash?: T;
   consent?:
     | T
     | {
@@ -2854,6 +2887,94 @@ export interface SiteText {
   createdAt?: string | null;
 }
 /**
+ * Wording and answer choices for the contact form, free-audit form and cost estimator.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-forms".
+ */
+export interface LeadForm {
+  id: number;
+  form?: {
+    serviceStep?: string | null;
+    serviceHelp?: string | null;
+    detailsStep?: string | null;
+    contactStep?: string | null;
+    budgetLabel?: string | null;
+    timelineLabel?: string | null;
+    messageLabel?: string | null;
+    nameLabel?: string | null;
+    emailLabel?: string | null;
+    whatsappLabel?: string | null;
+    contactHint?: string | null;
+    privacyText?: string | null;
+    privacyLinkLabel?: string | null;
+    next?: string | null;
+    back?: string | null;
+    submit?: string | null;
+    sending?: string | null;
+    stepOf?: string | null;
+    chooseService?: string | null;
+  };
+  messages?: {
+    invalid?: string | null;
+    needContact?: string | null;
+    rateLimited?: string | null;
+    verification?: string | null;
+    failed?: string | null;
+  };
+  audit?: {
+    websiteLabel?: string | null;
+    goalLabel?: string | null;
+    submit?: string | null;
+  };
+  estimator?: {
+    serviceTitle?: string | null;
+    scopeTitle?: string | null;
+    scopeHelp?: string | null;
+    timelineTitle?: string | null;
+    resultTitle?: string | null;
+    rangeLabel?: string | null;
+    fromLabel?: string | null;
+    contactUsTitle?: string | null;
+    contactUsText?: string | null;
+    unlockTitle?: string | null;
+    unlockText?: string | null;
+    unlockButton?: string | null;
+    requestButton?: string | null;
+    breakdownTitle?: string | null;
+    baseLabel?: string | null;
+    timelineLine?: string | null;
+    totalLabel?: string | null;
+    disclaimer?: string | null;
+    thanks?: string | null;
+    restart?: string | null;
+    unavailableTitle?: string | null;
+    unavailableText?: string | null;
+  };
+  options?: {
+    /**
+     * Budget choices. Leave empty to hide the budget question (do not guess prices).
+     */
+    budget?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Timeline choices.
+     */
+    timeline?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
@@ -3241,6 +3362,96 @@ export interface SiteTextSelect<T extends boolean = true> {
         thankYouProjects?: T;
         testimonial?: T;
         faq?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-forms_select".
+ */
+export interface LeadFormsSelect<T extends boolean = true> {
+  form?:
+    | T
+    | {
+        serviceStep?: T;
+        serviceHelp?: T;
+        detailsStep?: T;
+        contactStep?: T;
+        budgetLabel?: T;
+        timelineLabel?: T;
+        messageLabel?: T;
+        nameLabel?: T;
+        emailLabel?: T;
+        whatsappLabel?: T;
+        contactHint?: T;
+        privacyText?: T;
+        privacyLinkLabel?: T;
+        next?: T;
+        back?: T;
+        submit?: T;
+        sending?: T;
+        stepOf?: T;
+        chooseService?: T;
+      };
+  messages?:
+    | T
+    | {
+        invalid?: T;
+        needContact?: T;
+        rateLimited?: T;
+        verification?: T;
+        failed?: T;
+      };
+  audit?:
+    | T
+    | {
+        websiteLabel?: T;
+        goalLabel?: T;
+        submit?: T;
+      };
+  estimator?:
+    | T
+    | {
+        serviceTitle?: T;
+        scopeTitle?: T;
+        scopeHelp?: T;
+        timelineTitle?: T;
+        resultTitle?: T;
+        rangeLabel?: T;
+        fromLabel?: T;
+        contactUsTitle?: T;
+        contactUsText?: T;
+        unlockTitle?: T;
+        unlockText?: T;
+        unlockButton?: T;
+        requestButton?: T;
+        breakdownTitle?: T;
+        baseLabel?: T;
+        timelineLine?: T;
+        totalLabel?: T;
+        disclaimer?: T;
+        thanks?: T;
+        restart?: T;
+        unavailableTitle?: T;
+        unavailableText?: T;
+      };
+  options?:
+    | T
+    | {
+        budget?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        timeline?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

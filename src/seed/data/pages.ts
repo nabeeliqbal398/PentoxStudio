@@ -3,7 +3,16 @@ import { h, p, ul } from '../lexical'
 export type SeedPage = {
   slug: string
   title: string
-  template: 'default' | 'about' | 'contact' | 'book-a-call' | 'thank-you' | 'services-hub' | 'industries-hub'
+  template:
+    | 'default'
+    | 'about'
+    | 'contact'
+    | 'book-a-call'
+    | 'thank-you'
+    | 'services-hub'
+    | 'industries-hub'
+    | 'free-audit'
+    | 'cost-estimator'
   excerpt?: string
   hero?: { eyebrow?: string; heading?: string; intro?: string }
   content?: unknown[]
@@ -137,6 +146,46 @@ export const pages: SeedPage[] = [
     reviewNote: 'TODO: client review.',
   },
   {
+    slug: 'free-audit',
+    title: 'Free audit',
+    template: 'free-audit',
+    excerpt: 'Request a free SEO and website audit from Pentox Studio.',
+    hero: {
+      eyebrow: 'Free audit',
+      heading: 'Free SEO & Website Audit in 48 Hours',
+      intro: 'Tell us your website and your main goal. We will review it and send you what we find.',
+    },
+    highlights: {
+      heading: 'What you get',
+      items: [
+        { icon: 'Search', title: 'A review of your website', description: 'How it looks to visitors and to search engines today.' },
+        { icon: 'TrendingUp', title: 'Where the opportunities are', description: 'The changes most likely to help you reach your goal.' },
+        { icon: 'ListChecks', title: 'Clear next steps', description: 'What to do first, with no obligation to hire us.' },
+      ],
+    },
+    reviewNote: 'TODO: client review. Confirm the 48-hour promise and what the audit covers.',
+  },
+  {
+    slug: 'cost-estimator',
+    title: 'Cost estimator',
+    template: 'cost-estimator',
+    excerpt: 'Estimate the cost of your project with the Pentox Studio cost estimator.',
+    hero: {
+      eyebrow: 'Cost estimator',
+      heading: 'Estimate your project cost',
+      intro: 'Answer a few questions to get a price range for your project.',
+    },
+    highlights: {
+      heading: 'What affects the price',
+      items: [
+        { icon: 'ListChecks', title: 'Scope', description: 'The more features and pages, the more work the project takes.' },
+        { icon: 'CalendarDays', title: 'Timeline', description: 'Tighter deadlines can change the price.' },
+        { icon: 'Layers', title: 'Complexity', description: 'Integrations and custom work need more time than standard builds.' },
+      ],
+    },
+    reviewNote: 'TODO: client review. Estimator prices are set in Content → Estimator rules.',
+  },
+  {
     slug: 'thank-you',
     title: 'Thank you',
     template: 'thank-you',
@@ -230,6 +279,8 @@ export const pages: SeedPage[] = [
       h('h2', 'How we use them'),
       p('We load analytics tools (such as Google Analytics, Google Tag Manager and Microsoft Clarity, where enabled) only if you click Accept on the cookie banner. If you decline, or do nothing, no analytics scripts are loaded.'),
       p('Your choice is remembered in your browser so we do not ask again on every page.'),
+      h('h2', 'Source-tracking cookie'),
+      p('When you first visit, we store a small first-party cookie (pentox_ft, up to 90 days) with where you came from: campaign tags in the link, the referring site and the first page you saw. It is sent with an enquiry only if you submit a form, so we can tell which channel brought you to us.'),
       h('h2', 'Changing your choice'),
       p('Use the "Cookie settings" link in the footer at any time to accept or decline analytics. Withdrawing consent reloads the page so the tools stop running.'),
       h('h2', 'Third-party embeds'),
@@ -296,5 +347,76 @@ export const siteText = {
     thankYouProjects: 'See our work',
     testimonial: 'What clients say',
     faq: 'Frequently asked questions',
+  },
+}
+
+// Wording and choices for the lead forms and the estimator. Budget bands are deliberately empty:
+// the question stays hidden until the client supplies real ranges (no invented prices).
+export const leadForms = {
+  form: {
+    serviceStep: 'What do you need?',
+    serviceHelp: 'Choose one or more services.',
+    detailsStep: 'Tell us about the project',
+    contactStep: 'How can we reach you?',
+    budgetLabel: 'Budget',
+    timelineLabel: 'Timeline',
+    messageLabel: 'Anything else we should know? (optional)',
+    nameLabel: 'Your name',
+    emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp / phone',
+    contactHint: 'Please give an email address or a WhatsApp number.',
+    privacyText: 'I agree to the processing of my details as described in the',
+    privacyLinkLabel: 'Privacy Policy',
+    next: 'Next',
+    back: 'Back',
+    submit: 'Send',
+    sending: 'Sending…',
+    stepOf: 'Step {current} of {total}',
+    chooseService: 'Please choose at least one service.',
+  },
+  messages: {
+    invalid: 'Some details are missing or not valid. Please check the form and try again.',
+    needContact: 'Please add an email address or a WhatsApp number so we can reply.',
+    rateLimited: 'Too many requests from your connection. Please try again later.',
+    verification: 'We could not verify the spam check. Please try again.',
+    failed: 'Something went wrong and your message was not sent. Please try again or contact us directly.',
+  },
+  audit: {
+    websiteLabel: 'Your website',
+    goalLabel: 'Your main goal',
+    submit: 'Request my free audit',
+  },
+  estimator: {
+    serviceTitle: 'What do you need?',
+    scopeTitle: 'What should it include?',
+    scopeHelp: 'Select everything that applies.',
+    timelineTitle: 'When do you need it?',
+    resultTitle: 'Your estimate',
+    rangeLabel: 'Estimated range',
+    fromLabel: 'Estimated',
+    contactUsTitle: 'Contact us for a quote',
+    contactUsText: 'This project needs a closer look. Leave your details and we will prepare a quote for you.',
+    unlockTitle: 'Unlock your detailed quote',
+    unlockText: 'Leave your details to see the full breakdown. We will also email it to you.',
+    unlockButton: 'Show my detailed quote',
+    requestButton: 'Request a quote',
+    breakdownTitle: 'Your detailed quote',
+    baseLabel: 'Starting price',
+    timelineLine: 'Timeline',
+    totalLabel: 'Estimated total',
+    disclaimer: 'This is an estimate based on your answers, not a final quote. The final price is confirmed in a written proposal.',
+    thanks: 'Thank you. We will be in touch to talk about your project.',
+    restart: 'Start again',
+    unavailableTitle: 'The cost estimator is not available yet',
+    unavailableText: 'Tell us about your project and we will send you a quote.',
+  },
+  options: {
+    budget: [],
+    timeline: [
+      { label: 'As soon as possible' },
+      { label: 'Within 1 month' },
+      { label: '1 to 3 months' },
+      { label: 'Just exploring' },
+    ],
   },
 }

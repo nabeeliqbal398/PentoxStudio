@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import type { Footer } from '@/payload-types'
 
+import { LeadFormSlot } from '../forms/LeadFormSlot'
 import { Cta } from '../ui/Cta'
 
 type Band = {
@@ -15,17 +16,23 @@ type Band = {
 
 /**
  * Pre-footer CTA band ("Get your free audit"). Content is the site-wide band from the Footer
- * settings unless a page/service supplies its own. `children` is where the multi-step lead form
- * goes in a later phase. Hidden when there is nothing to show.
+ * settings unless a page/service supplies its own. By default it also holds the multi-step lead form.
+ * Hidden when there is nothing to show.
  */
 export function CtaBand({
   band,
   override,
   children,
+  withForm = true,
+  serviceId,
 }: {
   band?: Footer['ctaBand']
   override?: Band | null
   children?: ReactNode
+  /** Multi-step lead form (source: pre-footer form) under the buttons. */
+  withForm?: boolean
+  /** Service pages pre-select their service in the form. */
+  serviceId?: number
 }) {
   const own = override?.heading ? override : undefined
   const content: Band | undefined | null = own ?? band
@@ -45,6 +52,11 @@ export function CtaBand({
           <Cta label={secondary?.label} url={secondary?.url} variant="outlineLight" />
         </div>
         {children}
+        {withForm && (
+          <div className="mx-auto mt-10 max-w-2xl">
+            <LeadFormSlot serviceId={serviceId} source="prefooter-form" />
+          </div>
+        )}
       </div>
     </section>
   )

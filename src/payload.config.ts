@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import path from 'path'
@@ -36,9 +37,11 @@ import { ChatbotSettings } from './globals/ChatbotSettings'
 import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Home } from './globals/Home'
+import { LeadForms } from './globals/LeadForms'
 import { SiteSettings } from './globals/SiteSettings'
 import { SiteText } from './globals/SiteText'
 import { Stats } from './globals/Stats'
+import { isEmailConfigured } from './lib/email/config'
 import { env } from './lib/env'
 import { absoluteUrl, collectionPaths } from './lib/paths'
 
@@ -70,6 +73,7 @@ export default buildConfig({
       icons: [{ rel: 'icon', type: 'image/png', url: '/brand/favicon.png' }],
     },
     components: {
+      beforeDashboard: ['/components/admin/LeadsDashboard#LeadsDashboard'],
       graphics: {
         Logo: '/components/admin/Logo#Logo',
         Icon: '/components/admin/Icon#Icon',
@@ -110,8 +114,21 @@ export default buildConfig({
     Redirects,
     KnowledgeChunks,
   ],
-  globals: [Home, Stats, SiteSettings, SiteText, Header, Footer, ChatbotSettings],
+  globals: [Home, Stats, SiteSettings, SiteText, LeadForms, Header, Footer, ChatbotSettings],
   editor: lexicalEditor(),
+  // SMTP from .env. Without it no adapter is set and src/lib/email skips sending (leads are still saved).
+  email: isEmailConfigured()
+    ? nodemailerAdapter({
+        defaultFromAddress: env.EMAIL_FROM!,
+        defaultFromName: env.EMAIL_FROM_NAME ?? 'Pentox Studio',
+        transportOptions: {
+          host: env.SMTP_HOST,
+          port: env.SMTP_PORT ?? 587,
+          secure: (env.SMTP_PORT ?? 587) === 465,
+          auth: env.SMTP_USER ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined,
+        },
+      })
+    : undefined,
   secret: env.PAYLOAD_SECRET,
   telemetry: false,
   typescript: {

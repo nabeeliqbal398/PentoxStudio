@@ -35,6 +35,8 @@ const subscribe = (listener: () => void) => {
   }
 }
 
+export const readConsent = (): Consent => read()
+
 export function setConsent(value: 'accepted' | 'rejected') {
   const previous = read()
   memory = value
