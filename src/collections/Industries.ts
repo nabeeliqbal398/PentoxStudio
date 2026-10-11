@@ -5,6 +5,7 @@ import { sortOrderField } from '../fields/common'
 import { reviewFields } from '../fields/review'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexAfterChange, reindexAfterDelete } from '../lib/chatbot/hooks'
 import { previewUrl } from '../lib/paths'
 import { draftVersions } from '../lib/versions'
 
@@ -28,8 +29,8 @@ export const Industries: CollectionConfig = {
     delete: isAdminOrEditor,
   },
   hooks: {
-    afterChange: [revalidateAfterChange('industries')],
-    afterDelete: [revalidateAfterDelete('industries')],
+    afterChange: [revalidateAfterChange('industries'), reindexAfterChange('industries')],
+    afterDelete: [revalidateAfterDelete('industries'), reindexAfterDelete('industries')],
   },
   fields: [
     { name: 'title', type: 'text', required: true },

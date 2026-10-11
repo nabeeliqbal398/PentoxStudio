@@ -62,3 +62,6 @@ backups/
 # --- brain/ (local security notes) ---
 # Ignored until you decide; remove this line to track it.
 brain/
+
+# Local embedding model cache (downloaded on first use)
+/.cache/

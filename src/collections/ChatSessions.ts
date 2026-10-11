@@ -22,6 +22,7 @@ export const ChatSessions: CollectionConfig = {
   fields: [
     { name: 'sessionId', type: 'text', required: true, unique: true, index: true },
     { name: 'messageCount', type: 'number', defaultValue: 0 },
+    { name: 'userMessages', type: 'number', defaultValue: 0, admin: { description: 'Messages typed by the visitor (limited per session).' } },
     { name: 'leadCaptured', type: 'checkbox', defaultValue: false, index: true },
     {
       name: 'flagged',

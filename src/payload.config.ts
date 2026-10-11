@@ -13,6 +13,7 @@ import { CampaignDeliveries } from './collections/CampaignDeliveries'
 import { Campaigns } from './collections/Campaigns'
 import { Categories } from './collections/Categories'
 import { ChatSessions } from './collections/ChatSessions'
+import { ChatbotUsage } from './collections/ChatbotUsage'
 import { Clients } from './collections/Clients'
 import { EstimatorRules } from './collections/EstimatorRules'
 import { Faqs } from './collections/Faqs'
@@ -40,6 +41,7 @@ import { Header } from './globals/Header'
 import { Home } from './globals/Home'
 import { LeadForms } from './globals/LeadForms'
 import { Newsletter } from './globals/Newsletter'
+import { indexKnowledge } from './jobs/chatbot'
 import { newsletterTasks } from './jobs/newsletter'
 import { SiteSettings } from './globals/SiteSettings'
 import { SiteText } from './globals/SiteText'
@@ -117,6 +119,7 @@ export default buildConfig({
     Users,
     Redirects,
     KnowledgeChunks,
+    ChatbotUsage,
   ],
   globals: [Home, Stats, SiteSettings, SiteText, LeadForms, Newsletter, Header, Footer, ChatbotSettings],
   editor: lexicalEditor(),
@@ -147,7 +150,7 @@ export default buildConfig({
   jobs: {
     // Every minute: scheduled publishing, newsletter batches and the campaign scheduler.
     autoRun: [{ cron: '* * * * *', limit: 10, queue: 'default' }],
-    tasks: newsletterTasks,
+    tasks: [...newsletterTasks, indexKnowledge],
   },
   db: postgresAdapter({
     pool: {

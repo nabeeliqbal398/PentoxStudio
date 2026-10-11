@@ -94,6 +94,7 @@ export interface Config {
     users: User;
     redirects: Redirect;
     'knowledge-chunks': KnowledgeChunk;
+    'chatbot-usage': ChatbotUsage;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -129,6 +130,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'knowledge-chunks': KnowledgeChunksSelect<false> | KnowledgeChunksSelect<true>;
+    'chatbot-usage': ChatbotUsageSelect<false> | ChatbotUsageSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -172,6 +174,7 @@ export interface Config {
     tasks: {
       'send-campaign-batch': TaskSendCampaignBatch;
       'campaign-scheduler': TaskCampaignScheduler;
+      'index-knowledge': TaskIndexKnowledge;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1327,6 +1330,10 @@ export interface ChatSession {
   id: number;
   sessionId: string;
   messageCount?: number | null;
+  /**
+   * Messages typed by the visitor (limited per session).
+   */
+  userMessages?: number | null;
   leadCaptured?: boolean | null;
   /**
    * Set when a prompt-injection or abuse pattern was detected.
@@ -1496,6 +1503,19 @@ export interface KnowledgeChunk {
   createdAt: string;
 }
 /**
+ * Daily reply counts (rows starting "day:") and hourly per-visitor counters used for rate limiting.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chatbot-usage".
+ */
+export interface ChatbotUsage {
+  id: number;
+  bucket: string;
+  count: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1564,7 +1584,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'send-campaign-batch' | 'campaign-scheduler' | 'schedulePublish';
+        taskSlug: 'inline' | 'send-campaign-batch' | 'campaign-scheduler' | 'index-knowledge' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1597,7 +1617,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'send-campaign-batch' | 'campaign-scheduler' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'send-campaign-batch' | 'campaign-scheduler' | 'index-knowledge' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1727,6 +1747,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'knowledge-chunks';
         value: number | KnowledgeChunk;
+      } | null)
+    | ({
+        relationTo: 'chatbot-usage';
+        value: number | ChatbotUsage;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2463,6 +2487,7 @@ export interface CampaignDeliveriesSelect<T extends boolean = true> {
 export interface ChatSessionsSelect<T extends boolean = true> {
   sessionId?: T;
   messageCount?: T;
+  userMessages?: T;
   leadCaptured?: T;
   flagged?: T;
   startedAt?: T;
@@ -2606,6 +2631,16 @@ export interface KnowledgeChunksSelect<T extends boolean = true> {
   contentHash?: T;
   embeddingModel?: T;
   indexedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chatbot-usage_select".
+ */
+export interface ChatbotUsageSelect<T extends boolean = true> {
+  bucket?: T;
+  count?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3284,7 +3319,7 @@ export interface Footer {
 export interface ChatbotSetting {
   id: number;
   /**
-   * The chatbot is built in Phase 9. Keep off until then.
+   * Shows the chat widget on the site. It also needs GROQ_API_KEY and a model in .env, and the knowledge base indexed (use the Re-index button below).
    */
   enabled?: boolean | null;
   greeting?: string | null;
@@ -3292,6 +3327,47 @@ export interface ChatbotSetting {
    * Shown with a WhatsApp button when the chatbot fails or hits its cap.
    */
   fallbackText?: string | null;
+  /**
+   * Reply when a message looks like an attempt to override the chatbot (it is not sent to the AI).
+   */
+  injectionReply?: string | null;
+  widget?: {
+    /**
+     * Header of the chat window.
+     */
+    title?: string | null;
+    /**
+     * Accessible name of the open button.
+     */
+    launcherLabel?: string | null;
+    placeholder?: string | null;
+    send?: string | null;
+    close?: string | null;
+    /**
+     * Shown while the assistant is replying.
+     */
+    thinking?: string | null;
+    /**
+     * Small print under the input (messages are processed by an AI provider).
+     */
+    privacyNote?: string | null;
+    errorText?: string | null;
+    whatsappButton?: string | null;
+    /**
+     * Shown when the assistant has passed the visitor details to the team.
+     */
+    leadSaved?: string | null;
+    newChat?: string | null;
+    /**
+     * Starter questions shown before the visitor types.
+     */
+    suggestions?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   systemPrompt: string;
   /**
    * Groq model id. Empty = GROQ_MODEL from the environment.
@@ -3299,7 +3375,7 @@ export interface ChatbotSetting {
   model?: string | null;
   limits?: {
     /**
-     * Total chatbot replies per day across all visitors.
+     * Total chatbot replies per day across all visitors. 0 = no cap. When reached, visitors are sent to WhatsApp.
      */
     dailyMessageCap?: number | null;
     perIpPerHour?: number | null;
@@ -3912,6 +3988,28 @@ export interface ChatbotSettingsSelect<T extends boolean = true> {
   enabled?: T;
   greeting?: T;
   fallbackText?: T;
+  injectionReply?: T;
+  widget?:
+    | T
+    | {
+        title?: T;
+        launcherLabel?: T;
+        placeholder?: T;
+        send?: T;
+        close?: T;
+        thinking?: T;
+        privacyNote?: T;
+        errorText?: T;
+        whatsappButton?: T;
+        leadSaved?: T;
+        newChat?: T;
+        suggestions?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
   systemPrompt?: T;
   model?: T;
   limits?:
@@ -3967,6 +4065,22 @@ export interface TaskCampaignScheduler {
   input?: unknown;
   output: {
     started?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskIndex-knowledge".
+ */
+export interface TaskIndexKnowledge {
+  input: {
+    collection?: string | null;
+    id?: string | null;
+  };
+  output: {
+    sources?: number | null;
+    chunks?: number | null;
+    embedded?: number | null;
+    deleted?: number | null;
   };
 }
 /**

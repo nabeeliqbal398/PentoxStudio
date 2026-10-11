@@ -20,6 +20,8 @@ export type LeadContext = {
   startedAt?: number
   attribution?: unknown
   submittedPath?: string
+  /** Chatbot leads: skips the form-only checks (honeypot, fill time, Turnstile, burst); the per-address lead limit still applies. */
+  skipFormChecks?: boolean
   /** Runs the emails after the response is sent (Next's `after`). Omitted: runs inline. */
   defer?: (task: () => Promise<void>) => void
   now?: number
@@ -44,6 +46,8 @@ export type LeadInput = {
   }
   /** Extra lines for the emails (the detailed estimate). */
   estimateLines?: { label: string; value: string }[]
+  /** The chat session a chatbot lead came from. */
+  chatSessionId?: number
 }
 
 export type LeadFailure = 'rate' | 'verification' | 'failed'
@@ -56,11 +60,13 @@ export async function guardRequest(payload: Payload, ctx: LeadContext): Promise<
   const now = ctx.now ?? Date.now()
 
   // Bots that fill the hidden field or submit instantly get a success response and nothing is saved.
-  if (ctx.honeypot) return { ok: true }
-  if (ctx.startedAt && now - ctx.startedAt < MIN_FILL_MS) return { ok: true }
+  if (!ctx.skipFormChecks) {
+    if (ctx.honeypot) return { ok: true }
+    if (ctx.startedAt && now - ctx.startedAt < MIN_FILL_MS) return { ok: true }
 
-  if (burstLimited(ctx.ip, now)) return { ok: false, code: 'rate' }
-  if (!(await verifyTurnstile(ctx.turnstileToken, ctx.ip))) return { ok: false, code: 'verification' }
+    if (burstLimited(ctx.ip, now)) return { ok: false, code: 'rate' }
+    if (!(await verifyTurnstile(ctx.turnstileToken, ctx.ip))) return { ok: false, code: 'verification' }
+  }
   // Without a client address (no proxy headers, e.g. local development) every visitor would share one
   // bucket, so the database limit only applies to identifiable addresses.
   if (ctx.ip !== 'unknown' && (await dbRateLimited(payload, hashIp(ctx.ip), now))) return { ok: false, code: 'rate' }
@@ -92,6 +98,7 @@ export async function createLead(payload: Payload, input: LeadInput, ctx: LeadCo
         message: input.message,
         website: input.website,
         estimate: input.estimate,
+        chatSession: input.chatSessionId,
         attribution: attribution.success ? attribution.data : undefined,
         submittedPath: ctx.submittedPath?.slice(0, 300),
         ipHash: hashIp(ctx.ip),

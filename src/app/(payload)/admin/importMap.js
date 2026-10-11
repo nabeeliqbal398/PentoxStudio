@@ -34,6 +34,7 @@ import { PostNewsletterButton as PostNewsletterButton_af74b314376a3988435d280561
 import { ExportLeadsButton as ExportLeadsButton_0c1839f25517d5a26c099b36b0d4d57e } from '../../../components/admin/ExportLeadsButton'
 import { SubscribersTools as SubscribersTools_d6411e60b1043ca5de263c8f9b9dd806 } from '../../../components/admin/SubscribersTools'
 import { CampaignActions as CampaignActions_da7396c9a20561875406c414d985f2ad } from '../../../components/admin/CampaignActions'
+import { ReindexButton as ReindexButton_d2c3b40f6d877b9eb7e1ab6baf8e7535 } from '../../../components/admin/ReindexButton'
 import { Icon as Icon_dfe4008080d895d460898c3a6155e9ba } from '../../../components/admin/Icon'
 import { Logo as Logo_91a09b539d3c86b0aebf520e7564ce08 } from '../../../components/admin/Logo'
 import { LeadsDashboard as LeadsDashboard_fbb7a5117714eda6364cc6d0db4ab4cf } from '../../../components/admin/LeadsDashboard'
@@ -77,6 +78,7 @@ export const importMap = {
   "/components/admin/ExportLeadsButton#ExportLeadsButton": ExportLeadsButton_0c1839f25517d5a26c099b36b0d4d57e,
   "/components/admin/SubscribersTools#SubscribersTools": SubscribersTools_d6411e60b1043ca5de263c8f9b9dd806,
   "/components/admin/CampaignActions#CampaignActions": CampaignActions_da7396c9a20561875406c414d985f2ad,
+  "/components/admin/ReindexButton#ReindexButton": ReindexButton_d2c3b40f6d877b9eb7e1ab6baf8e7535,
   "/components/admin/Icon#Icon": Icon_dfe4008080d895d460898c3a6155e9ba,
   "/components/admin/Logo#Logo": Logo_91a09b539d3c86b0aebf520e7564ce08,
   "/components/admin/LeadsDashboard#LeadsDashboard": LeadsDashboard_fbb7a5117714eda6364cc6d0db4ab4cf,

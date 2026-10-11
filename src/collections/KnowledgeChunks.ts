@@ -15,6 +15,7 @@ export const KnowledgeChunks: CollectionConfig = {
     defaultColumns: ['title', 'sourceType', 'chunkIndex', 'indexedAt'],
     group: adminGroups.settings,
     description: 'Managed by the indexing job. Re-indexing replaces these automatically.',
+    components: { beforeListTable: ['/components/admin/ReindexButton#ReindexButton'] },
   },
   access: {
     read: isAdminOrEditor,

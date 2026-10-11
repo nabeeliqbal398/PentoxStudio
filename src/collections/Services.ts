@@ -10,6 +10,7 @@ import { sortOrderField } from '../fields/common'
 import { reviewFields } from '../fields/review'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexAfterChange, reindexAfterDelete } from '../lib/chatbot/hooks'
 import { contentEditor } from '../lib/editor'
 import { previewUrl } from '../lib/paths'
 import { draftVersions } from '../lib/versions'
@@ -55,8 +56,8 @@ export const Services: CollectionConfig = {
   },
   hooks: {
     beforeChange: [setPath],
-    afterChange: [revalidateAfterChange('services')],
-    afterDelete: [revalidateAfterDelete('services')],
+    afterChange: [revalidateAfterChange('services'), reindexAfterChange('services')],
+    afterDelete: [revalidateAfterDelete('services'), reindexAfterDelete('services')],
   },
   fields: [
     { name: 'title', type: 'text', required: true },

@@ -6,7 +6,7 @@ const text = (max: number) => z.string().trim().max(max)
 const optionalText = (max: number) =>
   z.preprocess((v) => (typeof v === 'string' && v.trim() === '' ? undefined : v), text(max).optional())
 
-export const leadSources = ['contact-form', 'prefooter-form', 'free-audit', 'estimator'] as const
+export const leadSources = ['contact-form', 'prefooter-form', 'free-audit', 'estimator', 'chatbot'] as const
 export type PublicLeadSource = (typeof leadSources)[number]
 
 /** First-touch tracking sent by the browser from the pentox_ft cookie. Untrusted: strings only, truncated. */

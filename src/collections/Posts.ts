@@ -15,6 +15,7 @@ import {
 import { readingTimeMinutes } from '../hooks/readingTime'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexAfterChange, reindexAfterDelete } from '../lib/chatbot/hooks'
 import { createDraftFromPost } from '../lib/newsletter/draft'
 import { postNewsletterDraftEndpoint } from '../lib/newsletter/endpoints'
 import { contentEditor } from '../lib/editor'
@@ -78,8 +79,8 @@ export const Posts: CollectionConfig = {
   },
   hooks: {
     beforeChange: [setCreatedBy, authorsCannotPublish, setReadingTime, setPublishedAt],
-    afterChange: [revalidateAfterChange('posts'), newsletterDraftOnFirstPublish],
-    afterDelete: [revalidateAfterDelete('posts')],
+    afterChange: [revalidateAfterChange('posts'), reindexAfterChange('posts'), newsletterDraftOnFirstPublish],
+    afterDelete: [revalidateAfterDelete('posts'), reindexAfterDelete('posts')],
   },
   fields: [
     { name: 'title', type: 'text', required: true },

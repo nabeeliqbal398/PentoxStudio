@@ -9,6 +9,8 @@ const dirname = path.dirname(__filename)
 const nextConfig: NextConfig = {
   // Matches the old WordPress URLs (see capture/07-LOCKED-SCOPE.md §4).
   trailingSlash: true,
+  // Native / ONNX packages used by the local embedding model run from node_modules instead of being bundled.
+  serverExternalPackages: ['@huggingface/transformers', 'onnxruntime-node', 'onnxruntime-common'],
   images: {
     localPatterns: [
       {

@@ -3,6 +3,7 @@ import type { GlobalConfig } from 'payload'
 import { isAdminOrEditor } from '../access'
 import { revalidateGlobal } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexSiteSettings } from '../lib/chatbot/hooks'
 
 // Business details (NAP), social links, booking and analytics IDs. Keep NAP identical everywhere.
 export const SiteSettings: GlobalConfig = {
@@ -10,7 +11,7 @@ export const SiteSettings: GlobalConfig = {
   label: 'Site settings',
   admin: { group: adminGroups.settings },
   access: { read: () => true, update: isAdminOrEditor },
-  hooks: { afterChange: [revalidateGlobal('site-settings')] },
+  hooks: { afterChange: [revalidateGlobal('site-settings'), reindexSiteSettings] },
   fields: [
     { name: 'businessName', type: 'text', required: true, defaultValue: 'Pentox Studio' },
     {

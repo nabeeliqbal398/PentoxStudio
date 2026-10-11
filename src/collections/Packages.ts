@@ -5,6 +5,7 @@ import { sortOrderField } from '../fields/common'
 import { reviewFields } from '../fields/review'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexAfterChange, reindexAfterDelete } from '../lib/chatbot/hooks'
 
 // Starter / Growth / Pro "starting from" packages per service. Prices come from here only.
 export const Packages: CollectionConfig = {
@@ -24,8 +25,8 @@ export const Packages: CollectionConfig = {
     delete: isAdminOrEditor,
   },
   hooks: {
-    afterChange: [revalidateAfterChange('packages')],
-    afterDelete: [revalidateAfterDelete('packages')],
+    afterChange: [revalidateAfterChange('packages'), reindexAfterChange('packages')],
+    afterDelete: [revalidateAfterDelete('packages'), reindexAfterDelete('packages')],
   },
   fields: [
     { name: 'title', type: 'text', required: true },

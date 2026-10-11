@@ -4,6 +4,7 @@ import { isAdminOrEditor } from '../access'
 import { sortOrderField } from '../fields/common'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexAfterChange, reindexAfterDelete } from '../lib/chatbot/hooks'
 
 export const Faqs: CollectionConfig = {
   slug: 'faqs',
@@ -20,8 +21,8 @@ export const Faqs: CollectionConfig = {
     delete: isAdminOrEditor,
   },
   hooks: {
-    afterChange: [revalidateAfterChange('faqs')],
-    afterDelete: [revalidateAfterDelete('faqs')],
+    afterChange: [revalidateAfterChange('faqs'), reindexAfterChange('faqs')],
+    afterDelete: [revalidateAfterDelete('faqs'), reindexAfterDelete('faqs')],
   },
   fields: [
     { name: 'question', type: 'text', required: true },

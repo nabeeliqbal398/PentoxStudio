@@ -3,6 +3,7 @@ import type { GlobalConfig } from 'payload'
 import { isAdmin, isAdminField, isAdminOrEditorField } from '../access'
 import { revalidateGlobal } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { reindexEndpoint, reindexStatusEndpoint } from '../lib/chatbot/endpoints'
 
 export const DEFAULT_SYSTEM_PROMPT = [
   'You are the website assistant for Pentox Studio, a digital marketing, design and development agency in Lahore, Pakistan.',
@@ -16,6 +17,7 @@ export const ChatbotSettings: GlobalConfig = {
   slug: 'chatbot-settings',
   label: 'AI chatbot',
   admin: { group: adminGroups.settings },
+  endpoints: [reindexEndpoint, reindexStatusEndpoint],
   access: {
     // The widget needs the public bits; the prompt and limits are staff-only (field access below).
     read: () => true,
@@ -27,10 +29,48 @@ export const ChatbotSettings: GlobalConfig = {
       name: 'enabled',
       type: 'checkbox',
       defaultValue: false,
-      admin: { description: 'The chatbot is built in Phase 9. Keep off until then.' },
+      admin: {
+        description:
+          'Shows the chat widget on the site. It also needs GROQ_API_KEY and a model in .env, and the knowledge base indexed (use the Re-index button below).',
+      },
+    },
+    {
+      name: 'reindex',
+      type: 'ui',
+      admin: { components: { Field: '/components/admin/ReindexButton#ReindexButton' } },
     },
     { name: 'greeting', type: 'textarea' },
     { name: 'fallbackText', type: 'text', admin: { description: 'Shown with a WhatsApp button when the chatbot fails or hits its cap.' } },
+    {
+      name: 'injectionReply',
+      type: 'textarea',
+      admin: { description: 'Reply when a message looks like an attempt to override the chatbot (it is not sent to the AI).' },
+    },
+    {
+      name: 'widget',
+      type: 'group',
+      label: 'Chat widget wording',
+      fields: [
+        { name: 'title', type: 'text', admin: { description: 'Header of the chat window.' } },
+        { name: 'launcherLabel', type: 'text', admin: { description: 'Accessible name of the open button.' } },
+        { name: 'placeholder', type: 'text' },
+        { name: 'send', type: 'text' },
+        { name: 'close', type: 'text' },
+        { name: 'thinking', type: 'text', admin: { description: 'Shown while the assistant is replying.' } },
+        { name: 'privacyNote', type: 'textarea', admin: { description: 'Small print under the input (messages are processed by an AI provider).' } },
+        { name: 'errorText', type: 'text' },
+        { name: 'whatsappButton', type: 'text' },
+        { name: 'leadSaved', type: 'text', admin: { description: 'Shown when the assistant has passed the visitor details to the team.' } },
+        { name: 'newChat', type: 'text' },
+        {
+          name: 'suggestions',
+          type: 'array',
+          maxRows: 4,
+          admin: { description: 'Starter questions shown before the visitor types.' },
+          fields: [{ name: 'text', type: 'text', required: true }],
+        },
+      ],
+    },
     {
       name: 'systemPrompt',
       type: 'textarea',
@@ -50,7 +90,7 @@ export const ChatbotSettings: GlobalConfig = {
       type: 'group',
       access: { read: isAdminOrEditorField },
       fields: [
-        { name: 'dailyMessageCap', type: 'number', defaultValue: 300, min: 0, admin: { description: 'Total chatbot replies per day across all visitors.' } },
+        { name: 'dailyMessageCap', type: 'number', defaultValue: 300, min: 0, admin: { description: 'Total chatbot replies per day across all visitors. 0 = no cap. When reached, visitors are sent to WhatsApp.' } },
         { name: 'perIpPerHour', type: 'number', defaultValue: 20, min: 1 },
         { name: 'maxOutputTokens', type: 'number', defaultValue: 600, min: 50 },
       ],

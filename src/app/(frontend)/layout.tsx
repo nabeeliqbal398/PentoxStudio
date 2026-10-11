@@ -3,6 +3,7 @@ import { Inter, Poppins } from 'next/font/google'
 import React from 'react'
 
 import { AttributionTracker, ClickTracker } from '@/components/forms/Trackers'
+import { ChatWidget } from '@/components/chat/ChatWidget'
 import { Analytics } from '@/components/site/Analytics'
 import { BackToTop } from '@/components/site/BackToTop'
 import { BackgroundShapes } from '@/components/site/BackgroundShapes'
@@ -11,6 +12,7 @@ import { MobileStickyBar } from '@/components/site/MobileStickyBar'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
 import { WhatsAppButton } from '@/components/site/WhatsAppButton'
+import { getChatWidgetConfig } from '@/lib/chatbot/public'
 import { env } from '@/lib/env'
 import { getFooterInfo, getHeaderInfo, getSiteInfo, stickyActions } from '@/lib/site-data'
 import './globals.css'
@@ -43,7 +45,7 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [site, header, footer] = await Promise.all([getSiteInfo(), getHeaderInfo(), getFooterInfo()])
+  const [site, header, footer, chat] = await Promise.all([getSiteInfo(), getHeaderInfo(), getFooterInfo(), getChatWidgetConfig()])
 
   const actions = stickyActions(site, header)
   // The banner only exists when there is something to consent to.
@@ -68,7 +70,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SiteFooter analyticsEnabled={analyticsEnabled} footer={footer} site={site} />
         </div>
         <WhatsAppButton whatsapp={site.whatsapp} />
-        <BackToTop />
+        <BackToTop raised={Boolean(chat)} />
+        {chat && <ChatWidget config={chat} hasStickyBar={actions.length > 0} whatsappHref={site.whatsapp?.href} />}
         <AttributionTracker />
         <ClickTracker />
         <MobileStickyBar actions={actions} header={header} site={site} />

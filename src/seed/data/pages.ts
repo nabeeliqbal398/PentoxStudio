@@ -561,3 +561,28 @@ export const newsletterText = {
     viewOnSite: 'View on the website',
   },
 }
+
+// Chat widget wording and the reply to blocked (prompt-injection) messages. The chatbot itself stays switched OFF
+// until an admin enables it in the AI chatbot settings.
+export const chatbotText = {
+  injectionReply: 'I can only help with questions about Pentox Studio and its services. How can I help you with those?',
+  widget: {
+    title: 'Chat with us',
+    launcherLabel: 'Open chat assistant',
+    placeholder: 'Type your question…',
+    send: 'Send message',
+    close: 'Close chat',
+    thinking: 'Thinking…',
+    privacyNote:
+      'This assistant is powered by AI and may make mistakes. Your messages are processed by our AI provider and stored so our team can follow up. Please do not share sensitive information.',
+    errorText: 'Sorry, I cannot answer right now.',
+    whatsappButton: 'Chat on WhatsApp',
+    leadSaved: 'Thanks! Your details have been passed to our team.',
+    newChat: 'Start a new chat',
+    suggestions: [
+      { text: 'What services do you offer?' },
+      { text: 'How does the free audit work?' },
+      { text: 'How can I contact you?' },
+    ],
+  },
+}

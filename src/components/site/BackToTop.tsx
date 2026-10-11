@@ -3,7 +3,8 @@
 import { ChevronUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export function BackToTop() {
+/** `raised` lifts it above the chat launcher when the chatbot is on. */
+export function BackToTop({ raised = false }: { raised?: boolean }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export function BackToTop() {
   return (
     <button
       aria-label="Back to top"
-      className={`fixed bottom-20 right-4 z-30 flex size-11 items-center justify-center rounded-full border-[1.5px] border-navy bg-white text-navy transition-[opacity,background-color,color] hover:bg-brand hover:text-white focus-visible:bg-brand focus-visible:text-white md:bottom-6 md:right-6 ${
+      className={`fixed ${raised ? 'bottom-[8.25rem] md:bottom-24' : 'bottom-20 md:bottom-6'} right-4 z-30 flex size-11 items-center justify-center rounded-full border-[1.5px] border-navy bg-white text-navy transition-[opacity,background-color,color] hover:bg-brand hover:text-white focus-visible:bg-brand focus-visible:text-white md:right-6 ${
         visible ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
       onClick={toTop}
