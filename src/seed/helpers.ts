@@ -74,3 +74,54 @@ export async function ensureGlobal(
   await ctx.payload.updateGlobal({ slug, data: data as never, context, overrideAccess: true })
   ctx.created.push(`global: ${slug}`)
 }
+
+const isEmpty = (value: unknown): boolean =>
+  value === undefined ||
+  value === null ||
+  value === '' ||
+  (Array.isArray(value) && value.length === 0)
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/** Copies `defaults` into `current` only where `current` has no value yet. Returns whether anything changed. */
+function fillMissing(current: Record<string, unknown>, defaults: Record<string, unknown>): boolean {
+  let changed = false
+  for (const [key, value] of Object.entries(defaults)) {
+    if (isPlainObject(value)) {
+      const existing = isPlainObject(current[key]) ? (current[key] as Record<string, unknown>) : {}
+      if (fillMissing(existing, value)) {
+        current[key] = existing
+        changed = true
+      }
+    } else if (isEmpty(current[key])) {
+      current[key] = value
+      changed = true
+    }
+  }
+  return changed
+}
+
+/**
+ * Adds default values to a global field by field, never replacing anything an editor already
+ * entered. Lets later phases add new defaults to a global that was seeded earlier.
+ */
+export async function fillGlobal(
+  ctx: SeedContext,
+  slug: GlobalSlug,
+  defaults: Record<string, unknown>,
+): Promise<void> {
+  const current = (await ctx.payload.findGlobal({
+    slug,
+    depth: 0,
+    overrideAccess: true,
+  })) as unknown as Record<string, unknown>
+
+  const data = structuredClone(current)
+  if (!fillMissing(data, defaults)) {
+    ctx.skipped.push(`global: ${slug} (defaults)`)
+    return
+  }
+  await ctx.payload.updateGlobal({ slug, data: data as never, context, overrideAccess: true })
+  ctx.created.push(`global: ${slug} (defaults)`)
+}

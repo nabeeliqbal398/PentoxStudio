@@ -30,6 +30,9 @@ export type SiteInfo = {
   whatsapp?: { number: string; href: string }
   email?: { address: string; href: string }
   addressLines: string[]
+  address?: { street?: string; city?: string; region?: string; postalCode?: string; country?: string }
+  bookingUrl?: string
+  mapEmbedUrl?: string
   hours: string[]
   responseTime?: string
   socials: SocialLink[]
@@ -70,6 +73,11 @@ const SOCIAL_LABELS: Record<string, string> = {
 const analyticsId = (value: string | null | undefined, pattern: RegExp): string | undefined => {
   const id = text(value)
   return id && pattern.test(id) ? id : undefined
+}
+
+const safeHttps = (value: string | null | undefined): string | undefined => {
+  const link = safeLink(value)
+  return link?.kind === 'external' && link.href.startsWith('https://') ? link.href : undefined
 }
 
 function toImage(media: number | Media | null | undefined): ImageInfo | undefined {
@@ -166,6 +174,15 @@ export const getSiteInfo = unstable_cache(
         ? { number: whatsappNumber, href: `https://wa.me/${whatsappNumber}` }
         : undefined,
       email: email ? { address: email, href: `mailto:${email}` } : undefined,
+      address: {
+        street: text(address?.street),
+        city: text(address?.city),
+        region: text(address?.region),
+        postalCode: text(address?.postalCode),
+        country: text(address?.country),
+      },
+      bookingUrl: safeHttps(text(settings.bookingUrl) ?? env.BOOKING_URL),
+      mapEmbedUrl: safeHttps(settings.mapEmbedUrl),
       addressLines: [text(address?.street), [city, text(address?.postalCode)].filter(Boolean).join(' '), text(address?.country)]
         .filter((line): line is string => Boolean(line)),
       hours: (settings.hours ?? []).map((row) => `${row.days} ${row.opens}–${row.closes}`),

@@ -3,7 +3,7 @@ import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 import { isAdminOrEditor } from '../access'
 import { adminGroups } from '../lib/adminGroups'
 
-// Old URL → new URL. Lookup/enforcement (proxy) is added with the public pages in Phase 4.
+// Old URL → new URL. Enforced with real 301/302 responses by src/proxy.ts (map cached ~1 min, see lib/redirects.ts).
 const normalize: CollectionBeforeValidateHook = ({ data }) => {
   if (!data) return data
   const next = { ...data }

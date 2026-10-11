@@ -6,7 +6,7 @@ import { reviewFields } from '../fields/review'
 import { revalidateAfterChange, revalidateAfterDelete } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
 import { previewUrl } from '../lib/paths'
-import { simpleDrafts } from '../lib/versions'
+import { draftVersions } from '../lib/versions'
 
 export const Industries: CollectionConfig = {
   slug: 'industries',
@@ -15,10 +15,12 @@ export const Industries: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', '_status', 'needsReview', 'sortOrder', 'updatedAt'],
     group: adminGroups.content,
+    livePreview: { url: ({ data }) => previewUrl('industries', data) },
     preview: (data) => previewUrl('industries', data),
   },
   // Drafts so placeholder industries stay hidden until the client approves them.
-  versions: simpleDrafts,
+  // Autosave keeps Live Preview in step with edits.
+  versions: draftVersions,
   access: {
     read: publishedOrStaff,
     create: isAdminOrEditor,

@@ -3,6 +3,7 @@ import type { Field, GlobalConfig } from 'payload'
 import { isAdminOrEditor } from '../access'
 import { revalidateGlobal } from '../hooks/revalidate'
 import { adminGroups } from '../lib/adminGroups'
+import { previewPathUrl } from '../lib/paths'
 
 const sectionToggles = [
   ['hero', 'Hero'],
@@ -41,7 +42,10 @@ const cta = (name: string, label: string): Field => ({
 export const Home: GlobalConfig = {
   slug: 'home',
   label: 'Home page',
-  admin: { group: adminGroups.content },
+  admin: {
+    group: adminGroups.content,
+    livePreview: { url: () => previewPathUrl('/') },
+  },
   access: { read: () => true, update: isAdminOrEditor },
   hooks: { afterChange: [revalidateGlobal('home')] },
   fields: [

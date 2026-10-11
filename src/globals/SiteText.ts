@@ -1,0 +1,100 @@
+import type { Field, GlobalConfig } from 'payload'
+
+import { isAdminOrEditor } from '../access'
+import { revalidateGlobal } from '../hooks/revalidate'
+import { adminGroups } from '../lib/adminGroups'
+
+const text = (name: string, label: string): Field => ({ name, type: 'text', label })
+
+// Fixed wording the page templates need (section headings, button and field labels), so no
+// visible copy is hard-coded in the code. An empty value simply hides that heading/label.
+export const SiteText: GlobalConfig = {
+  slug: 'site-text',
+  label: 'Page labels',
+  admin: {
+    group: adminGroups.settings,
+    description: 'Section headings and button labels used by the page templates.',
+  },
+  access: { read: () => true, update: isAdminOrEditor },
+  hooks: { afterChange: [revalidateGlobal('site-text')] },
+  fields: [
+    {
+      name: 'common',
+      type: 'group',
+      fields: [
+        text('home', 'Breadcrumb: Home'),
+        text('services', 'Breadcrumb / link: Services'),
+        text('industries', 'Breadcrumb / link: Industries'),
+        text('learnMore', 'Card link: Learn more'),
+        text('viewAllServices', 'Link: View all services'),
+        text('viewAllProjects', 'Link: View all projects'),
+        text('whatsapp', 'Button: WhatsApp'),
+        text('call', 'Button: Call'),
+        text('email', 'Button: Email'),
+        text('bookCall', 'Button: Book a call'),
+        text('openBooking', 'Link: Open booking page'),
+        text('estimator', 'Link: Cost estimator'),
+        text('previewBanner', 'Draft preview banner (editors only)'),
+      ],
+    },
+    {
+      name: 'service',
+      type: 'group',
+      label: 'Service page',
+      fields: [
+        text('included', "Heading: What's included"),
+        text('results', 'Heading: Results'),
+        text('packages', 'Heading: Packages'),
+        text('priceFrom', 'Label: Starting from'),
+        text('tools', 'Heading: Tools & technologies'),
+        text('industries', 'Heading: Industries'),
+        text('relatedProjects', 'Heading: Related projects'),
+        text('relatedPosts', 'Heading: Related articles'),
+        text('subServices', 'Heading: Related services'),
+        text('faq', 'Heading: FAQ'),
+      ],
+    },
+    {
+      name: 'industry',
+      type: 'group',
+      label: 'Industry page',
+      fields: [
+        text('challenges', 'Heading: Challenges'),
+        text('services', 'Heading: Recommended services'),
+        text('projects', 'Heading: Case studies'),
+        text('faq', 'Heading: FAQ'),
+      ],
+    },
+    {
+      name: 'hubs',
+      type: 'group',
+      label: 'Hub pages',
+      fields: [
+        text('howWeWork', 'Heading: How we work (Services hub)'),
+        text('featuredProjects', 'Heading: Featured case studies'),
+        text('faq', 'Heading: FAQ'),
+        text('noIndustries', 'Message when no industries are published'),
+      ],
+    },
+    {
+      name: 'contact',
+      type: 'group',
+      label: 'Contact & booking',
+      fields: [
+        text('details', 'Heading: Contact information'),
+        text('phone', 'Label: Phone'),
+        text('whatsapp', 'Label: WhatsApp'),
+        text('email', 'Label: Email'),
+        text('address', 'Label: Address'),
+        text('hours', 'Label: Hours'),
+        text('follow', 'Label: Follow us'),
+        text('map', 'Heading: Map'),
+        text('booking', 'Heading: Booking'),
+        text('reachUs', 'Heading: Reach us directly'),
+        text('thankYouProjects', 'Heading: Thank-you page case studies'),
+        text('testimonial', 'Heading: Testimonial on Book a call'),
+        text('faq', 'Heading: FAQ'),
+      ],
+    },
+  ],
+}

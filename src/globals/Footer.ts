@@ -21,6 +21,32 @@ export const Footer: GlobalConfig = {
       ],
     },
     {
+      name: 'ctaBand',
+      type: 'group',
+      label: 'Pre-footer CTA band',
+      admin: { description: 'The "Get your free audit" band shown above the footer on most pages.' },
+      fields: [
+        { name: 'heading', type: 'text' },
+        { name: 'text', type: 'textarea' },
+        {
+          name: 'primaryCta',
+          type: 'group',
+          fields: [
+            { name: 'label', type: 'text' },
+            { name: 'url', type: 'text' },
+          ],
+        },
+        {
+          name: 'secondaryCta',
+          type: 'group',
+          fields: [
+            { name: 'label', type: 'text' },
+            { name: 'url', type: 'text' },
+          ],
+        },
+      ],
+    },
+    {
       name: 'showServiceGroups',
       type: 'checkbox',
       defaultValue: true,

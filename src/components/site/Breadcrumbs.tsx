@@ -10,8 +10,8 @@ export type Crumb = { label: string; href?: string }
  * Visible breadcrumb trail + BreadcrumbList schema. Pass the trail *after* Home; the last
  * item is the current page. Use on every page except the home page.
  */
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
-  const trail: Crumb[] = [{ label: 'Home', href: '/' }, ...items]
+export function Breadcrumbs({ items, homeLabel }: { items: Crumb[]; homeLabel?: string | null }) {
+  const trail: Crumb[] = [{ label: homeLabel?.trim() || 'Home', href: '/' }, ...items]
 
   return (
     <nav aria-label="Breadcrumb" className="mx-auto w-full max-w-site px-4 pt-4 text-sm text-muted">

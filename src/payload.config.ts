@@ -37,6 +37,7 @@ import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Home } from './globals/Home'
 import { SiteSettings } from './globals/SiteSettings'
+import { SiteText } from './globals/SiteText'
 import { Stats } from './globals/Stats'
 import { env } from './lib/env'
 import { absoluteUrl, collectionPaths } from './lib/paths'
@@ -109,7 +110,7 @@ export default buildConfig({
     Redirects,
     KnowledgeChunks,
   ],
-  globals: [Home, Stats, SiteSettings, Header, Footer, ChatbotSettings],
+  globals: [Home, Stats, SiteSettings, SiteText, Header, Footer, ChatbotSettings],
   editor: lexicalEditor(),
   secret: env.PAYLOAD_SECRET,
   telemetry: false,

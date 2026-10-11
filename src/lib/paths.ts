@@ -33,6 +33,13 @@ export const listingPaths: Record<string, string[]> = {
 export const absoluteUrl = (path?: string | null): string | undefined =>
   path ? new URL(path, env.NEXT_PUBLIC_SITE_URL).toString() : undefined
 
+/**
+ * Preview URL for a site path. It goes through /next/preview/, which checks the editor's admin
+ * session, switches on Next.js draft mode and redirects to the page.
+ */
+export const previewPathUrl = (path: string): string =>
+  `${env.NEXT_PUBLIC_SITE_URL}/next/preview/?${new URLSearchParams({ path })}`
+
 /** Live-preview iframe URL for a doc. Falls back to the site root when the slug is not set yet. */
 export const previewUrl = (collection: string, doc: Doc): string =>
-  absoluteUrl(collectionPaths[collection]?.(doc)) ?? env.NEXT_PUBLIC_SITE_URL
+  previewPathUrl(collectionPaths[collection]?.(doc) ?? '/')

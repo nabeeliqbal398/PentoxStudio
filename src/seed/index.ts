@@ -3,13 +3,38 @@ import type { Payload } from 'payload'
 import { DEFAULT_SYSTEM_PROMPT } from '../globals/ChatbotSettings'
 import { REVIEW_NOTE } from '../fields/review'
 import { faqs, industries, menuOrder, redirects, serviceGroups } from './data/content'
+import { pages, siteText } from './data/pages'
 import { services, type GroupKey } from './data/services'
-import { ensure, ensureGlobal, type Id, type SeedContext } from './helpers'
+import { ensure, ensureGlobal, fillGlobal, type Id, type SeedContext } from './helpers'
 import { richText } from './lexical'
 
 const review = { needsReview: true, reviewNote: REVIEW_NOTE }
 
 const BUTTON = { buttonLabel: 'Contact us', buttonUrl: '/contact-us/' }
+
+async function seedPages(ctx: SeedContext) {
+  for (const page of pages) {
+    await ensure(
+      ctx,
+      'pages',
+      { slug: { equals: page.slug } },
+      {
+        title: page.title,
+        slug: page.slug,
+        generateSlug: false,
+        template: page.template,
+        excerpt: page.excerpt,
+        hero: page.hero,
+        content: page.content ? richText(page.content) : undefined,
+        highlights: page.highlights,
+        secondary: page.secondary,
+        needsReview: true,
+        reviewNote: page.reviewNote,
+      },
+      { draft: page.draft, label: page.slug },
+    )
+  }
+}
 
 async function seedServiceGroups(ctx: SeedContext) {
   const ids = {} as Record<GroupKey, Id>
@@ -276,6 +301,37 @@ async function seedGlobals(
   })
 }
 
+// Defaults added in Phase 4. Filled field by field, so editors' own values are never replaced.
+async function seedGlobalDefaults(ctx: SeedContext) {
+  await fillGlobal(ctx, 'site-text', siteText)
+
+  await fillGlobal(ctx, 'footer', {
+    ctaBand: {
+      heading: 'Get your free audit',
+      text: 'Tell us about your website and your goals, and we will show you where the biggest opportunities are.',
+      primaryCta: { label: 'Free Audit', url: '/free-audit/' },
+      secondaryCta: { label: 'Book a Call', url: '/book-a-call/' },
+    },
+  })
+
+  await fillGlobal(ctx, 'home', {
+    projectsSection: { heading: 'Featured projects' },
+    resultsSection: { heading: 'Results' },
+    industriesSection: {
+      heading: 'Industries we serve',
+      intro: 'Marketing, design and development shaped around your industry.',
+    },
+    testimonialsSection: { heading: 'What our clients say' },
+    faqSection: { heading: 'Frequently asked questions' },
+  })
+
+  // Address-based Google Maps embed (no API key needed). Replace it in Site settings if the client prefers another.
+  await fillGlobal(ctx, 'site-settings', {
+    mapEmbedUrl:
+      'https://www.google.com/maps?q=Zainab+Tower,+Model+Town+Link+Road,+Lahore,+Pakistan&output=embed',
+  })
+}
+
 export async function seed(payload: Payload) {
   const ctx: SeedContext = { payload, created: [], skipped: [] }
 
@@ -287,7 +343,9 @@ export async function seed(payload: Payload) {
   await seedPackages(ctx, serviceIds)
   await seedEstimatorRules(ctx, serviceIds)
   await seedRedirects(ctx)
+  await seedPages(ctx)
   await seedGlobals(ctx, groups, serviceIds)
+  await seedGlobalDefaults(ctx)
 
   payload.logger.info(`Seed finished: ${ctx.created.length} created, ${ctx.skipped.length} already present.`)
   if (ctx.created.length) payload.logger.info(`Created:\n  ${ctx.created.join('\n  ')}`)

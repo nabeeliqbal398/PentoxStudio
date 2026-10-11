@@ -141,6 +141,7 @@ export interface Config {
     home: Home;
     stats: Stat;
     'site-settings': SiteSetting;
+    'site-text': SiteText;
     header: Header;
     footer: Footer;
     'chatbot-settings': ChatbotSetting;
@@ -149,6 +150,7 @@ export interface Config {
     home: HomeSelect<false> | HomeSelect<true>;
     stats: StatsSelect<false> | StatsSelect<true>;
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'site-text': SiteTextSelect<false> | SiteTextSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     'chatbot-settings': ChatbotSettingsSelect<false> | ChatbotSettingsSelect<true>;
@@ -200,10 +202,30 @@ export interface Page {
   generateSlug?: boolean | null;
   slug: string;
   /**
-   * Short intro under the title.
+   * Controls the page layout.
+   */
+  template: 'default' | 'about' | 'contact' | 'book-a-call' | 'thank-you' | 'services-hub' | 'industries-hub';
+  /**
+   * Drafted or placeholder content that the client still has to approve.
+   */
+  needsReview?: boolean | null;
+  reviewNote?: string | null;
+  /**
+   * Short intro; used as the meta description fallback.
    */
   excerpt?: string | null;
-  content: {
+  hero?: {
+    eyebrow?: string | null;
+    /**
+     * The page H1. Falls back to the title.
+     */
+    heading?: string | null;
+    intro?: string | null;
+  };
+  /**
+   * Main body (legal text, About story and mission, ...).
+   */
+  content?: {
     root: {
       type: string;
       children: {
@@ -217,7 +239,50 @@ export interface Page {
       version: number;
     };
     [k: string]: unknown;
+  } | null;
+  /**
+   * About: values. Services hub: Why Pentox (verifiable points only). Book a call: what we will cover. Thank you: next steps.
+   */
+  highlights?: {
+    heading?: string | null;
+    intro?: string | null;
+    items?:
+      | {
+          /**
+           * lucide-react icon name.
+           */
+          icon?: string | null;
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
   };
+  /**
+   * About: office & reach. Services hub: pricing teaser. Contact: booking section intro. Hidden when empty.
+   */
+  secondary?: {
+    heading?: string | null;
+    text?: string | null;
+    buttonLabel?: string | null;
+    /**
+     * Site path (e.g. /pricing/) or full URL.
+     */
+    buttonUrl?: string | null;
+  };
+  /**
+   * Leave empty to use the site-wide CTA band (Footer settings).
+   */
+  cta?: {
+    heading?: string | null;
+    text?: string | null;
+    buttonLabel?: string | null;
+    /**
+     * Site path (e.g. /pricing/) or full URL.
+     */
+    buttonUrl?: string | null;
+  };
+  faqs?: (number | Faq)[] | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -238,67 +303,25 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "faqs".
  */
-export interface Media {
+export interface Faq {
   id: number;
+  question: string;
   /**
-   * Describe the image for screen readers and SEO.
+   * Plain text (also used as the FAQPage schema answer).
    */
-  alt: string;
+  answer: string;
+  services?: (number | Service)[] | null;
+  industries?: (number | Industry)[] | null;
+  topic?: ('general' | 'pricing' | 'process' | 'service') | null;
+  showOnHome?: boolean | null;
+  /**
+   * Lower numbers appear first.
+   */
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    portrait?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    hero?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    og?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -477,6 +500,70 @@ export interface ServiceGroup {
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe the image for screen readers and SEO.
+   */
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    portrait?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -704,28 +791,6 @@ export interface Industry {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "faqs".
- */
-export interface Faq {
-  id: number;
-  question: string;
-  /**
-   * Plain text (also used as the FAQPage schema answer).
-   */
-  answer: string;
-  services?: (number | Service)[] | null;
-  industries?: (number | Industry)[] | null;
-  topic?: ('general' | 'pricing' | 'process' | 'service') | null;
-  showOnHome?: boolean | null;
-  /**
-   * Lower numbers appear first.
-   */
-  sortOrder?: number | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1631,8 +1696,49 @@ export interface PagesSelect<T extends boolean = true> {
   title?: T;
   generateSlug?: T;
   slug?: T;
+  template?: T;
+  needsReview?: T;
+  reviewNote?: T;
   excerpt?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        intro?: T;
+      };
   content?: T;
+  highlights?:
+    | T
+    | {
+        heading?: T;
+        intro?: T;
+        items?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  secondary?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        buttonLabel?: T;
+        buttonUrl?: T;
+      };
+  cta?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        buttonLabel?: T;
+        buttonUrl?: T;
+      };
+  faqs?: T;
   meta?:
     | T
     | {
@@ -2683,6 +2789,71 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Section headings and button labels used by the page templates.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-text".
+ */
+export interface SiteText {
+  id: number;
+  common?: {
+    home?: string | null;
+    services?: string | null;
+    industries?: string | null;
+    learnMore?: string | null;
+    viewAllServices?: string | null;
+    viewAllProjects?: string | null;
+    whatsapp?: string | null;
+    call?: string | null;
+    email?: string | null;
+    bookCall?: string | null;
+    openBooking?: string | null;
+    estimator?: string | null;
+    previewBanner?: string | null;
+  };
+  service?: {
+    included?: string | null;
+    results?: string | null;
+    packages?: string | null;
+    priceFrom?: string | null;
+    tools?: string | null;
+    industries?: string | null;
+    relatedProjects?: string | null;
+    relatedPosts?: string | null;
+    subServices?: string | null;
+    faq?: string | null;
+  };
+  industry?: {
+    challenges?: string | null;
+    services?: string | null;
+    projects?: string | null;
+    faq?: string | null;
+  };
+  hubs?: {
+    howWeWork?: string | null;
+    featuredProjects?: string | null;
+    faq?: string | null;
+    noIndustries?: string | null;
+  };
+  contact?: {
+    details?: string | null;
+    phone?: string | null;
+    whatsapp?: string | null;
+    email?: string | null;
+    address?: string | null;
+    hours?: string | null;
+    follow?: string | null;
+    map?: string | null;
+    booking?: string | null;
+    reachUs?: string | null;
+    thankYouProjects?: string | null;
+    testimonial?: string | null;
+    faq?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
@@ -2733,6 +2904,21 @@ export interface Footer {
   brandStrip?: {
     heading?: string | null;
     statement?: string | null;
+  };
+  /**
+   * The "Get your free audit" band shown above the footer on most pages.
+   */
+  ctaBand?: {
+    heading?: string | null;
+    text?: string | null;
+    primaryCta?: {
+      label?: string | null;
+      url?: string | null;
+    };
+    secondaryCta?: {
+      label?: string | null;
+      url?: string | null;
+    };
   };
   /**
    * Grouped service links, built from the Services.
@@ -2989,6 +3175,79 @@ export interface SiteSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-text_select".
+ */
+export interface SiteTextSelect<T extends boolean = true> {
+  common?:
+    | T
+    | {
+        home?: T;
+        services?: T;
+        industries?: T;
+        learnMore?: T;
+        viewAllServices?: T;
+        viewAllProjects?: T;
+        whatsapp?: T;
+        call?: T;
+        email?: T;
+        bookCall?: T;
+        openBooking?: T;
+        estimator?: T;
+        previewBanner?: T;
+      };
+  service?:
+    | T
+    | {
+        included?: T;
+        results?: T;
+        packages?: T;
+        priceFrom?: T;
+        tools?: T;
+        industries?: T;
+        relatedProjects?: T;
+        relatedPosts?: T;
+        subServices?: T;
+        faq?: T;
+      };
+  industry?:
+    | T
+    | {
+        challenges?: T;
+        services?: T;
+        projects?: T;
+        faq?: T;
+      };
+  hubs?:
+    | T
+    | {
+        howWeWork?: T;
+        featuredProjects?: T;
+        faq?: T;
+        noIndustries?: T;
+      };
+  contact?:
+    | T
+    | {
+        details?: T;
+        phone?: T;
+        whatsapp?: T;
+        email?: T;
+        address?: T;
+        hours?: T;
+        follow?: T;
+        map?: T;
+        booking?: T;
+        reachUs?: T;
+        thankYouProjects?: T;
+        testimonial?: T;
+        faq?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -3035,6 +3294,24 @@ export interface FooterSelect<T extends boolean = true> {
     | {
         heading?: T;
         statement?: T;
+      };
+  ctaBand?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        primaryCta?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+            };
+        secondaryCta?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+            };
       };
   showServiceGroups?: T;
   showIndustries?: T;
@@ -3116,6 +3393,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'services';
           value: number | Service;
+        } | null)
+      | ({
+          relationTo: 'industries';
+          value: number | Industry;
         } | null)
       | ({
           relationTo: 'posts';
