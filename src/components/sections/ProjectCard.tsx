@@ -24,7 +24,7 @@ export function ProjectCardView({ card, className = '' }: { card: ProjectCardDat
       />
       <div className="absolute inset-x-0 bottom-0 p-5 text-white">
         {card.tag && <p className="text-xs font-semibold uppercase tracking-widest text-[#ff6b70]">{card.tag}</p>}
-        <h3 className="mt-1 font-heading text-2xl font-light leading-snug">
+        <h3 className="mt-1 font-heading text-2xl font-normal leading-snug">
           <Link className="after:absolute after:inset-0 after:content-['']" href={`/portfolio/${card.slug}/`}>
             {card.title}
           </Link>

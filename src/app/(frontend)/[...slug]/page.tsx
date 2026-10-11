@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { PageView } from '@/components/templates/PageView'
 import { getPage, getViewer } from '@/lib/content'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, pickDescription } from '@/lib/seo'
 
 type Props = { params: Promise<{ slug: string[] }> }
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return buildMetadata({
     meta: page.meta,
     title: page.hero?.heading || page.title,
-    description: page.excerpt || page.hero?.intro,
+    description: pickDescription(page.excerpt, page.hero?.intro),
     path: `/${page.slug}/`,
     // The thank-you page is never indexed, and neither is a draft preview.
     noindex: page.template === 'thank-you' || viewer.draft,

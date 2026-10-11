@@ -50,7 +50,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!service) return {}
   return buildMetadata({
     meta: service.meta,
-    title: service.hero?.heading || service.title,
+    // A long copied-over heading would be cut off in search results: fall back to the shorter service name.
+    title: service.hero?.heading && service.hero.heading.length <= 52 ? service.hero.heading : service.title,
     description: service.shortDescription,
     path: service.path || target,
     noindex: viewer.draft,

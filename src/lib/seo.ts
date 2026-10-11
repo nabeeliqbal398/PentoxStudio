@@ -30,6 +30,12 @@ type MetadataInput = {
   fallbackImage?: Media | number | null
 }
 
+/** The first candidate long enough to work as a meta description (70+ characters), else the first non-empty one. */
+export const pickDescription = (...candidates: (string | null | undefined)[]): string | undefined => {
+  const list = candidates.map((value) => value?.trim()).filter((value): value is string => Boolean(value))
+  return list.find((value) => value.length >= 70) ?? list[0]
+}
+
 export function buildMetadata({ meta, title, description, path, noindex, fallbackImage }: MetadataInput): Metadata {
   const metaTitle = meta?.title?.trim()
   const metaDescription = meta?.description?.trim() || description?.trim() || undefined

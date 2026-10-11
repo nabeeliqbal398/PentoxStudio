@@ -63,7 +63,7 @@ export function SiteFooter({
             )}
           </div>
           {footer.brandStatement && (
-            <p className="font-heading text-3xl font-extrabold uppercase leading-tight text-navy md:text-5xl">
+            <p className="font-heading text-3xl font-bold uppercase leading-tight text-navy md:text-5xl">
               {footer.brandStatement}
             </p>
           )}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 
-// Fixed decorative blob/hatch layer (public/brand/shapes.png) with a very slight parallax.
+// Fixed decorative blob/hatch layer (public/brand/shapes.webp (a compressed copy of shapes.png)) with a very slight parallax.
 // Purely visual: no pointer events, hidden from assistive tech, parallax off for reduced motion.
 export function BackgroundShapes() {
   const ref = useRef<HTMLDivElement>(null)
@@ -34,7 +34,7 @@ export function BackgroundShapes() {
       <div
         className="absolute inset-x-0 -top-10 h-[calc(100%+80px)] bg-cover bg-center opacity-50 will-change-transform"
         ref={ref}
-        style={{ backgroundImage: 'url(/brand/shapes.png)' }}
+        style={{ backgroundImage: 'url(/brand/shapes.webp)' }}
       />
     </div>
   )

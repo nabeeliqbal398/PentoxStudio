@@ -25,6 +25,13 @@ const makeConverters =
   (headingIds?: HeadingIds): JSXConvertersFunction =>
   ({ defaultConverters }) => ({
   ...defaultConverters,
+  // A paragraph that only wraps a horizontal rule (the WordPress import produced a few) must not become <p><hr></p>,
+  // which is invalid HTML and breaks hydration.
+  paragraph: (args: { node: { children?: { type?: string }[] }; nodesToJSX: (a: { nodes: never }) => React.ReactNode }) => {
+    const children = args.node.children ?? []
+    if (children.some((child) => child.type === 'horizontalrule')) return <>{args.nodesToJSX({ nodes: children as never })}</>
+    return (defaultConverters.paragraph as unknown as (a: typeof args) => React.ReactNode)(args)
+  },
   // Headings get ids (for the table of contents) when a counter is supplied.
   ...(headingIds
     ? {

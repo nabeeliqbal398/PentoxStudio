@@ -50,6 +50,9 @@ const schema = z.object({
   EMAIL_FROM_NAME: optional(z.string()),
   LEAD_NOTIFY_TO: optional(z.email('must be an email address')),
 
+  // Staging switch (Phase 10): "true" makes the whole site noindex (robots, X-Robots-Tag header, empty sitemap).
+  NOINDEX_SITE: optional(z.enum(['true', 'false'])),
+
   // Newsletter sending limits (Phase 8). Defaults suit a personal Gmail account; raise them for
   // Google Workspace or a Hostinger mailbox (check your provider's hourly/daily limits).
   NEWSLETTER_BATCH_SIZE: optional(z.coerce.number().int().min(1).max(500)),

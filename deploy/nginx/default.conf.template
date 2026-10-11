@@ -1,0 +1,82 @@
+# Nginx in front of the app. ${DOMAIN} is filled in from .env.prod (only that variable is substituted).
+# The real client address is passed on as X-Forwarded-For / X-Real-IP: the app uses it for rate limiting and for the
+# per-visitor limits of the forms and the chatbot. It is SET (not appended to), so visitors cannot fake it.
+
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+
+upstream app {
+    server app:3000;
+    keepalive 16;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMAIN};
+    server_tokens off;
+
+    # Let's Encrypt validation
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name ${DOMAIN};
+    server_tokens off;
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    client_max_body_size 12m;          # image uploads (the app limits files to 10 MB)
+
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_vary on;
+    gzip_types text/plain text/css text/xml application/json application/javascript application/xml application/rss+xml image/svg+xml;
+
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 60s;
+
+    # The chatbot streams its answer word by word: Nginx must not buffer it.
+    location /api/chat/ {
+        limit_req zone=api burst=20 nodelay;
+        proxy_pass http://app;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 120s;
+    }
+
+    # Form, newsletter and chat endpoints get a request limit on top of the app's own limits.
+    location ~ ^/api/(subscribe|unsubscribe|users/login) {
+        limit_req zone=api burst=10 nodelay;
+        proxy_pass http://app;
+    }
+
+    # Fingerprinted build files never change: cache them for a year.
+    location /_next/static/ {
+        proxy_pass http://app;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location / {
+        proxy_pass http://app;
+    }
+}

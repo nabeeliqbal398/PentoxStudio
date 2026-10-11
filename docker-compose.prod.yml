@@ -1,0 +1,108 @@
+# Production stack for a single VPS: app + Postgres (pgvector) + Nginx + Let's Encrypt.
+# Full walk-through: docs/DEPLOY-HOSTINGER.md.
+#
+#   cp deploy/.env.production.example .env.prod        (then fill it in)
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d db
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm tools pnpm migrate
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml build app
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+#
+# Volumes (all persistent, all included in the backups): pgdata (database), media (uploads), model_cache (embedding
+# model), certs + certbot_www (Let's Encrypt).
+
+name: pentox
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Loopback only: used by `next build` (see the app service) and by the backup script. Never exposed publicly.
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      # The build reads the published content from the running database (a few pages are generated at build time),
+      # so it shares the host network and connects to the loopback port published by the db service above.
+      network: host
+      args:
+        DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@127.0.0.1:5432/${POSTGRES_DB}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_CLARITY_ID: ${NEXT_PUBLIC_CLARITY_ID:-}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env.prod
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    volumes:
+      - media:/app/media
+      - model_cache:/app/.cache
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      NGINX_ENVSUBST_FILTER: DOMAIN
+    volumes:
+      - ./deploy/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    # Reload every 6 hours so a renewed certificate is picked up.
+    command: /bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & exec /docker-entrypoint.sh nginx -g "daemon off;"'
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'
+
+  # One-off commands with the same code and dependencies: migrations, seeding, the WordPress import, backups.
+  #   docker compose --env-file .env.prod -f docker-compose.prod.yml run --rm tools pnpm migrate
+  tools:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: deps
+    env_file: .env.prod
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media:/app/media
+      - model_cache:/app/.cache
+
+volumes:
+  pgdata:
+  media:
+  model_cache:
+  certs:
+  certbot_www:

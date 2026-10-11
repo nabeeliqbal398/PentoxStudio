@@ -12,7 +12,7 @@ import { blogHref, readBlogParams } from '@/lib/blog'
 import { getAuthorBySlug, getBlogPosts, getCtaBand, getSiteText } from '@/lib/content'
 import { safeLink } from '@/lib/links'
 import { one, toImg } from '@/lib/media'
-import { buildMetadata, personJsonLd } from '@/lib/seo'
+import { buildMetadata, personJsonLd, pickDescription } from '@/lib/seo'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -26,7 +26,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   return buildMetadata({
     meta: author.meta,
     title: author.name,
-    description: author.bio,
+    description: pickDescription(
+      author.bio,
+      author.jobTitle ? `${author.name}, ${author.jobTitle}` : undefined,
+      `Articles by ${author.name} on the Pentox Studio blog.`,
+    ),
     path: blogHref(`/blog/author/${author.slug}/`, { page }),
   })
 }

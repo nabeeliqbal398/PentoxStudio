@@ -30,6 +30,8 @@ const revalidate = (payload: Payload, slug: string, paths: (string | undefined)[
   safely(payload, slug, () => {
     unique.forEach((path) => revalidatePath(path))
     revalidatePath('/', 'layout')
+    // Machine-readable indexes follow the content.
+    for (const file of ['/sitemap.xml', '/llms.txt']) revalidatePath(file)
     revalidateTag(slug, EXPIRE_NOW)
   })
 }

@@ -4,7 +4,9 @@ import Script from 'next/script'
 
 import type { SiteInfo } from '@/lib/site-data'
 
-import { useConsent } from './consent'
+import { useEffect } from 'react'
+
+import { ensureConsentCookie, useConsent } from './consent'
 
 /**
  * GA4, GTM and Microsoft Clarity. Nothing is rendered, so nothing is downloaded or executed,
@@ -12,6 +14,11 @@ import { useConsent } from './consent'
  */
 export function Analytics({ ids }: { ids: SiteInfo['analytics'] }) {
   const consent = useConsent()
+
+  useEffect(() => {
+    if (consent === 'accepted' && ensureConsentCookie()) window.location.reload()
+  }, [consent])
+
   if (consent !== 'accepted') return null
 
   const { ga4Id, gtmId, clarityId } = ids

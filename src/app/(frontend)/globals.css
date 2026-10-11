@@ -4,12 +4,12 @@
 /* Brand tokens from capture/01-design-system.md and capture/07-LOCKED-SCOPE.md §2 */
 @theme {
   --color-navy: #1c244b;
-  --color-brand: #dd2c33;
-  --color-brand-active: #ef1b21;
-  --color-accent: #467ff7;
+  --color-brand: #c9242a; /* AA contrast incl. over the page background shapes (spec #dd2c33 = 4.3:1) */
+  --color-brand-active: #a81d22;
+  --color-accent: #2f5fd0; /* AA for links (spec #467ff7 = 3.4:1) */
   --color-body: #4a4a4a;
   --color-strong: #3b3b3b;
-  --color-muted: #71747b;
+  --color-muted: #686b72; /* AA on #f5f5f5 (spec #71747b = 4.3:1) */
   --color-line: #a8acb7;
   --color-surface: #fafafa;
   --color-surface-alt: #f5f5f5;

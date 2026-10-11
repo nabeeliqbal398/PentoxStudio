@@ -10,7 +10,7 @@ import { Breadcrumbs } from '@/components/site/Breadcrumbs'
 import { Section } from '@/components/ui/Section'
 import { blogHref, readBlogParams } from '@/lib/blog'
 import { getBlogPosts, getCategoryBySlug, getCtaBand, getSiteText, one } from '@/lib/content'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, pickDescription } from '@/lib/seo'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -24,7 +24,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   return buildMetadata({
     meta: category.meta,
     title: category.title,
-    description: category.description,
+    description: pickDescription(category.description, one(category.service)?.shortDescription),
     path: blogHref(`/blog/category/${category.slug}/`, { page }),
   })
 }

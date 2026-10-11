@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next'
+import dynamic from 'next/dynamic'
 import { Inter, Poppins } from 'next/font/google'
 import React from 'react'
 
 import { AttributionTracker, ClickTracker } from '@/components/forms/Trackers'
-import { ChatWidget } from '@/components/chat/ChatWidget'
 import { Analytics } from '@/components/site/Analytics'
 import { BackToTop } from '@/components/site/BackToTop'
 import { BackgroundShapes } from '@/components/site/BackgroundShapes'
@@ -17,9 +17,14 @@ import { env } from '@/lib/env'
 import { getFooterInfo, getHeaderInfo, getSiteInfo, stickyActions } from '@/lib/site-data'
 import './globals.css'
 
+// The chat widget is only downloaded when the chatbot is switched on (its code is not part of every page).
+const ChatWidget = dynamic(() => import('@/components/chat/ChatWidget').then((module) => module.ChatWidget))
+
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  // Four weights (400/500/600/700): every extra weight is another font file to download. Light and extra-bold
+  // text uses the nearest of these.
+  weight: ['400', '500', '600', '700'],
   variable: '--font-poppins',
   display: 'swap',
 })

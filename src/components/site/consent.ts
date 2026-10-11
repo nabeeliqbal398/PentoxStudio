@@ -37,6 +37,26 @@ const subscribe = (listener: () => void) => {
 
 export const readConsent = (): Consent => read()
 
+/** Mirrors the choice into a cookie so the server can send a Content-Security-Policy that matches it. */
+const writeCookie = (value: 'accepted' | 'rejected') => {
+  try {
+    const secure = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `pentox_consent=${value}; Max-Age=${365 * 24 * 60 * 60}; Path=/; SameSite=Lax${secure}`
+  } catch {
+    // cookies blocked: the choice still applies for this page view
+  }
+}
+
+/**
+ * A visitor who accepted before the cookie existed has only the localStorage choice. Writes the cookie and returns
+ * true when the page must be reloaded once so its Content-Security-Policy allows analytics.
+ */
+export function ensureConsentCookie(): boolean {
+  if (read() !== 'accepted' || document.cookie.includes('pentox_consent=accepted')) return false
+  writeCookie('accepted')
+  return true
+}
+
 export function setConsent(value: 'accepted' | 'rejected') {
   const previous = read()
   memory = value
@@ -45,10 +65,13 @@ export function setConsent(value: 'accepted' | 'rejected') {
   } catch {
     // storage blocked: the in-memory value still applies for this page view
   }
+  writeCookie(value)
   reopened = false
   emit()
   // Scripts that were already loaded can't be unloaded, so a withdrawal needs a fresh page.
   if (previous === 'accepted' && value === 'rejected') window.location.reload()
+  // Accepting needs a fresh page too: the Content-Security-Policy of the current page does not allow analytics yet.
+  if (previous !== 'accepted' && value === 'accepted') window.location.reload()
 }
 
 export function reopenConsent() {

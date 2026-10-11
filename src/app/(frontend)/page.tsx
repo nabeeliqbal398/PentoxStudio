@@ -42,8 +42,8 @@ import { getSiteInfo } from '@/lib/site-data'
 export async function generateMetadata(): Promise<Metadata> {
   const [home, viewer] = await Promise.all([getHome(), getViewer()])
   return buildMetadata({
-    meta: home.meta,
-    title: home.hero?.headline ? undefined : 'Pentox Studio',
+    // Without an SEO title set in the admin the home page still needs a real <title>.
+    meta: { ...home.meta, title: home.meta?.title || 'Pentox Studio | Digital Marketing Agency in Lahore, Pakistan' },
     description: home.hero?.subheadline,
     path: '/',
     noindex: viewer.draft,

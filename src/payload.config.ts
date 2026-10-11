@@ -122,6 +122,8 @@ export default buildConfig({
     ChatbotUsage,
   ],
   globals: [Home, Stats, SiteSettings, SiteText, LeadForms, Newsletter, Header, Footer, ChatbotSettings],
+  // The public site does not use GraphQL, so the endpoint and the playground are switched off (less to attack).
+  graphQL: { disable: true },
   editor: lexicalEditor(),
   // SMTP from .env. Without it no adapter is set and src/lib/email skips sending (leads are still saved).
   email: isEmailConfigured()
@@ -176,6 +178,8 @@ export default buildConfig({
       generateURL: ({ doc, collectionSlug }) =>
         absoluteUrl(collectionSlug ? collectionPaths[collectionSlug]?.(doc) : '/') ?? '',
       fields: ({ defaultFields }) => [
+        // Pre-publish checklist (warnings only) at the top of every SEO tab.
+        { name: 'checklist', type: 'ui', admin: { components: { Field: '/components/admin/SeoChecklist#SeoChecklist' } } },
         ...defaultFields,
         { name: 'focusKeyword', type: 'text', label: 'Focus keyword' },
         {

@@ -40,16 +40,16 @@ export function ShareButtons({ url, title, labels }: { url: string; title: strin
   const u = encodeURIComponent(url)
   const t = encodeURIComponent(title)
   const links = [
-    { name: labels?.shareFacebook, href: `https://www.facebook.com/sharer/sharer.php?u=${u}`, mark: 'f' },
-    { name: labels?.shareLinkedin, href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`, mark: 'in' },
-    { name: labels?.shareX, href: `https://twitter.com/intent/tweet?url=${u}&text=${t}`, mark: 'X' },
-    { name: labels?.shareWhatsapp, href: `https://wa.me/?text=${t}%20${u}`, mark: null },
+    { name: labels?.shareFacebook, href: `https://www.facebook.com/sharer/sharer.php?u=${u}`, path: 'M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.3v7A10 10 0 0 0 22 12z' },
+    { name: labels?.shareLinkedin, href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`, path: 'M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2.1 2.1 0 1 1 0-4.1 2.1 2.1 0 0 1 0 4.1zM7.1 20.5H3.6V9h3.5v11.5z' },
+    { name: labels?.shareX, href: `https://twitter.com/intent/tweet?url=${u}&text=${t}`, path: 'M18.2 2.3h3.4l-7.4 8.5 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9.1L.9 2.3h7l4.8 6.4 5.5-6.4zm-1.2 18h1.9L7.1 4.2H5.1L17 20.3z' },
+    { name: labels?.shareWhatsapp, href: `https://wa.me/?text=${t}%20${u}`, path: null },
   ]
   return (
     <div className="flex flex-wrap items-center gap-3">
       {labels?.share && <p className="font-heading font-semibold text-navy">{labels.share}</p>}
       <ul className="flex gap-2">
-        {links.map(({ name, href, mark }) => (
+        {links.map(({ name, href, path }) => (
           <li key={href}>
             <a
               aria-label={name ?? undefined}
@@ -58,10 +58,10 @@ export function ShareButtons({ url, title, labels }: { url: string; title: strin
               rel="noopener noreferrer"
               target="_blank"
             >
-              {mark ? (
-                <span aria-hidden="true" className="text-sm font-bold">
-                  {mark}
-                </span>
+              {path ? (
+                <svg aria-hidden="true" className="size-4 fill-current" focusable="false" viewBox="0 0 24 24">
+                  <path d={path} />
+                </svg>
               ) : (
                 <MessageCircle aria-hidden="true" className="size-4" />
               )}
