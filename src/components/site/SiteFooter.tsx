@@ -57,6 +57,7 @@ export function SiteFooter({
               fallback={LOGO_FALLBACK}
               image={site.logo}
               name={site.businessName}
+              sizes="100px"
             />
             {footer.brandHeading && (
               <p className="font-heading text-xl text-muted">{footer.brandHeading}</p>
@@ -87,6 +88,7 @@ export function SiteFooter({
                 fallback={LOGO_WHITE_FALLBACK}
                 image={site.logoWhite}
                 name={site.businessName}
+                sizes="64px"
               />
               {site.addressLines.length > 0 && (
                 <p className="flex gap-2 text-white/75">

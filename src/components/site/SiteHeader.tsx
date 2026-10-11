@@ -111,6 +111,7 @@ export function SiteHeader({ site, header }: { site: SiteInfo; header: HeaderInf
                 image={site.logo}
                 name={site.businessName}
                 priority
+                sizes="64px"
               />
             </Link>
 

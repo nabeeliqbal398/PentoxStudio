@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next'
-import dynamic from 'next/dynamic'
 import { Inter, Poppins } from 'next/font/google'
 import React from 'react'
 
+import { DeferredChatWidget } from '@/components/chat/DeferredChatWidget'
 import { AttributionTracker, ClickTracker } from '@/components/forms/Trackers'
 import { Analytics } from '@/components/site/Analytics'
 import { BackToTop } from '@/components/site/BackToTop'
@@ -16,9 +16,6 @@ import { getChatWidgetConfig } from '@/lib/chatbot/public'
 import { env } from '@/lib/env'
 import { getFooterInfo, getHeaderInfo, getSiteInfo, stickyActions } from '@/lib/site-data'
 import './globals.css'
-
-// The chat widget is only downloaded when the chatbot is switched on (its code is not part of every page).
-const ChatWidget = dynamic(() => import('@/components/chat/ChatWidget').then((module) => module.ChatWidget))
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -76,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </div>
         <WhatsAppButton whatsapp={site.whatsapp} />
         <BackToTop raised={Boolean(chat)} />
-        {chat && <ChatWidget config={chat} hasStickyBar={actions.length > 0} whatsappHref={site.whatsapp?.href} />}
+        {chat && <DeferredChatWidget config={chat} hasStickyBar={actions.length > 0} whatsappHref={site.whatsapp?.href} />}
         <AttributionTracker />
         <ClickTracker />
         <MobileStickyBar actions={actions} header={header} site={site} />

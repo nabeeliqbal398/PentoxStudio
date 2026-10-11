@@ -14,12 +14,15 @@ export function Logo({
   name,
   className,
   priority,
+  sizes,
 }: {
   image?: ImageInfo
   fallback: Fallback
   name: string
   className?: string
   priority?: boolean
+  /** Displayed width (e.g. "64px"): stops the browser downloading a logo far larger than it is shown. */
+  sizes?: string
 }) {
   const source = image ?? { ...fallback, alt: name }
   return (
@@ -28,6 +31,7 @@ export function Logo({
       className={className}
       height={source.height}
       priority={priority}
+      sizes={sizes}
       src={'url' in source ? source.url : source.src}
       width={source.width}
     />
