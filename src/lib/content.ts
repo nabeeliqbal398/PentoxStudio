@@ -5,7 +5,9 @@ import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
 
 import type {
+  Author,
   Badge,
+  Category,
   Faq,
   Footer,
   Home,
@@ -60,7 +62,7 @@ export async function getViewer(): Promise<Viewer> {
 // Single documents (services, industries, pages)
 // ---------------------------------------------------------------------------
 
-type Docs = { services: Service; industries: Industry; pages: Page; portfolio: Portfolio }
+type Docs = { services: Service; industries: Industry; pages: Page; portfolio: Portfolio; posts: Post }
 type DocCollection = keyof Docs
 type DocField = 'slug' | 'path'
 
@@ -70,6 +72,9 @@ const findPublished = {
     findOne('industries', field, value),
   ),
   pages: cached('doc:pages', ['pages'], (field: DocField, value: string) => findOne('pages', field, value)),
+  posts: cached('doc:posts', ['posts', 'authors', 'categories', 'services'], (field: DocField, value: string) =>
+    findOne('posts', field, value),
+  ),
   portfolio: cached('doc:portfolio', ['portfolio', 'testimonials', 'clients'], (field: DocField, value: string) =>
     findOne('portfolio', field, value),
   ),
@@ -115,6 +120,10 @@ export async function getPage(slug: string, viewer: Viewer): Promise<Page | null
 
 export async function getIndustry(slug: string, viewer: Viewer): Promise<Industry | null> {
   return getDoc('industries', 'slug', slug, viewer)
+}
+
+export async function getPost(slug: string, viewer: Viewer): Promise<Post | null> {
+  return getDoc('posts', 'slug', slug, viewer)
 }
 
 export async function getProject(slug: string, viewer: Viewer): Promise<Portfolio | null> {
@@ -413,3 +422,148 @@ export const getActiveBadges = cached('badges', ['badges'], async (): Promise<Ba
 })
 
 export { one, populated }
+
+// ---------------------------------------------------------------------------
+// Blog
+// ---------------------------------------------------------------------------
+
+export const BLOG_PAGE_SIZE = 9
+
+export type BlogQuery = {
+  q?: string
+  categoryId?: number
+  authorId?: number
+  page: number
+  /** Leave the featured post out of the grid (unfiltered blog home). */
+  excludeId?: number
+}
+
+export type BlogPage = { docs: Post[]; page: number; totalPages: number; totalDocs: number }
+
+/** One page of published posts, newest first. Search matches title and excerpt. */
+export const getBlogPosts = cached(
+  'blog-posts',
+  ['posts', 'categories', 'authors'],
+  async ({ q, categoryId, authorId, page, excludeId }: BlogQuery): Promise<BlogPage> => {
+    const payload = await getPayload({ config })
+    const and: Where[] = [published]
+    const term = q?.trim().slice(0, 100)
+    if (term) and.push({ or: [{ title: { like: term } }, { excerpt: { like: term } }] })
+    if (categoryId) and.push({ categories: { in: [categoryId] } })
+    if (authorId) and.push({ author: { equals: authorId } })
+    if (excludeId) and.push({ id: { not_equals: excludeId } })
+    const result = await payload.find({
+      collection: 'posts',
+      where: { and },
+      depth: 1,
+      limit: BLOG_PAGE_SIZE,
+      page,
+      sort: '-publishedAt',
+      overrideAccess: false,
+    })
+    return { docs: result.docs, page: result.page ?? page, totalPages: result.totalPages, totalDocs: result.totalDocs }
+  },
+)
+
+export const getFeaturedPost = cached('featured-post', ['posts', 'categories', 'authors'], async (): Promise<Post | null> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'posts',
+    where: { and: [published, { featured: { equals: true } }] },
+    depth: 1,
+    limit: 1,
+    sort: '-publishedAt',
+    overrideAccess: false,
+  })
+  return docs[0] ?? null
+})
+
+export type BlogCategory = { category: Category; count: number }
+
+/** Categories that have at least one published post, with their post counts (for the filter pills). */
+export const getBlogCategories = cached('blog-categories', ['posts', 'categories'], async (): Promise<BlogCategory[]> => {
+  const payload = await getPayload({ config })
+  const [categories, posts] = await Promise.all([
+    payload.find({ collection: 'categories', depth: 0, pagination: false, sort: 'sortOrder', overrideAccess: false }),
+    payload.find({
+      collection: 'posts',
+      where: published,
+      depth: 0,
+      pagination: false,
+      select: { categories: true },
+      overrideAccess: false,
+    }),
+  ])
+  const counts = new Map<number, number>()
+  for (const post of posts.docs) {
+    for (const category of post.categories ?? []) {
+      const id = typeof category === 'object' ? category.id : category
+      counts.set(id, (counts.get(id) ?? 0) + 1)
+    }
+  }
+  return categories.docs.flatMap((category) =>
+    counts.get(category.id) ? [{ category, count: counts.get(category.id)! }] : [],
+  )
+})
+
+export const getCategoryBySlug = cached('category', ['categories', 'services'], async (slug: string): Promise<Category | null> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'categories',
+    where: { slug: { equals: slug } },
+    depth: 1,
+    limit: 1,
+    overrideAccess: false,
+  })
+  return docs[0] ?? null
+})
+
+export const getAuthorBySlug = cached('author', ['authors'], async (slug: string): Promise<Author | null> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'authors',
+    where: { slug: { equals: slug } },
+    depth: 1,
+    limit: 1,
+    overrideAccess: false,
+  })
+  return docs[0] ?? null
+})
+
+/** Up to 3 related posts: the ones picked in the CMS, otherwise the newest in the same category. */
+export const getRelatedPosts = cached(
+  'related-posts',
+  ['posts', 'categories'],
+  async (postId: number, categoryIds: number[], picked: number[]): Promise<Post[]> => {
+    const payload = await getPayload({ config })
+    const and: Where[] = [published, { id: { not_equals: postId } }]
+    if (picked.length) and.push({ id: { in: picked } })
+    else if (categoryIds.length) and.push({ categories: { in: categoryIds } })
+    else return []
+    const { docs } = await payload.find({
+      collection: 'posts',
+      where: { and },
+      depth: 1,
+      limit: 3,
+      pagination: false,
+      sort: '-publishedAt',
+      overrideAccess: false,
+    })
+    return docs
+  },
+)
+
+/** Latest posts for the RSS feed. */
+export const getFeedPosts = cached('feed-posts', ['posts', 'categories'], async (): Promise<Post[]> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'posts',
+    where: published,
+    depth: 1,
+    limit: 50,
+    pagination: false,
+    sort: '-publishedAt',
+    overrideAccess: false,
+  })
+  return docs
+})

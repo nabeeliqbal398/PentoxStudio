@@ -56,6 +56,7 @@ export const Pages: CollectionConfig = {
         { label: 'Free audit', value: 'free-audit' },
         { label: 'Cost estimator', value: 'cost-estimator' },
         { label: 'Portfolio hub', value: 'portfolio' },
+        { label: 'Blog hub', value: 'blog' },
       ],
       admin: { position: 'sidebar', description: 'Controls the page layout.' },
     },

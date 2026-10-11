@@ -14,6 +14,7 @@ export type SeedPage = {
     | 'free-audit'
     | 'cost-estimator'
     | 'portfolio'
+    | 'blog'
   excerpt?: string
   hero?: { eyebrow?: string; heading?: string; intro?: string }
   content?: unknown[]
@@ -143,6 +144,18 @@ export const pages: SeedPage[] = [
         { icon: 'Search', title: 'Where you are today', description: 'Your website, marketing and current results.' },
         { icon: 'ListChecks', title: 'Next steps', description: 'The services that fit, and how we would start.' },
       ],
+    },
+    reviewNote: 'TODO: client review.',
+  },
+  {
+    slug: 'blog',
+    title: 'Blog',
+    template: 'blog',
+    excerpt: 'Practical guides on digital marketing, SEO, web development and design from Pentox Studio.',
+    hero: {
+      eyebrow: 'Blog',
+      heading: 'Guides and insights',
+      intro: 'Practical articles on digital marketing, SEO, web development and design.',
     },
     reviewNote: 'TODO: client review.',
   },
@@ -345,6 +358,41 @@ export const siteText = {
     featuredProjects: 'Featured case studies',
     faq: 'Frequently asked questions',
     noIndustries: 'Industry pages are coming soon.',
+  },
+  blog: {
+    breadcrumb: 'Blog',
+    searchLabel: 'Search the blog',
+    searchPlaceholder: 'Search articles',
+    searchButton: 'Search',
+    all: 'All',
+    filterLabel: 'Filter articles by category',
+    featured: 'Featured',
+    latest: 'Latest articles',
+    noResults: 'No articles found.',
+    clear: 'Clear search and filters',
+    previous: 'Previous',
+    next: 'Next',
+    pageOf: 'Page {page} of {pages}',
+    readTime: '{minutes} min read',
+    updated: 'Updated',
+    by: 'By',
+    toc: 'On this page',
+    share: 'Share this article',
+    shareFacebook: 'Share on Facebook',
+    shareLinkedin: 'Share on LinkedIn',
+    shareX: 'Share on X',
+    shareWhatsapp: 'Share on WhatsApp',
+    relatedService: 'Related service',
+    relatedPosts: 'Related articles',
+    aboutAuthor: 'About the author',
+    authorPosts: 'Articles by this author',
+    categoryEyebrow: 'Category',
+    authorEyebrow: 'Author',
+    rss: 'RSS feed',
+    midCtaHeading: 'Want help with this?',
+    midCtaText: 'Tell us about your website and goals and we will show you where to start.',
+    midCtaButton: 'Get your free audit',
+    midCtaUrl: '/free-audit/',
   },
   portfolio: {
     breadcrumb: 'Portfolio',

@@ -190,3 +190,56 @@ export const portfolioListJsonLd = (items: { name: string; path: string }[]) => 
     })),
   },
 })
+
+/** BlogPosting for a post page. Only fields that exist are emitted (no ratings, no invented word counts). */
+export const blogPostingJsonLd = (post: {
+  headline: string
+  description?: string | null
+  path: string
+  image?: string
+  published?: string | null
+  modified?: string | null
+  author?: { name: string; path: string }
+  section?: string
+  keywords?: string[]
+}) =>
+  compact({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.headline.slice(0, 110),
+    description: post.description ?? undefined,
+    image: post.image ? absoluteUrl(post.image) : undefined,
+    datePublished: post.published ?? undefined,
+    dateModified: post.modified ?? post.published ?? undefined,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': absoluteUrl(post.path) },
+    url: absoluteUrl(post.path),
+    articleSection: post.section,
+    keywords: post.keywords?.join(', '),
+    author: post.author
+      ? { '@type': 'Person', name: post.author.name, url: absoluteUrl(post.author.path) }
+      : { '@id': ORG_ID },
+    publisher: { '@id': ORG_ID },
+  })
+
+/** Person schema for an author page. */
+export const personJsonLd = (person: {
+  name: string
+  path: string
+  jobTitle?: string | null
+  description?: string | null
+  image?: string
+  sameAs?: string[]
+  knowsAbout?: string[]
+}) =>
+  compact({
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: person.name,
+    url: absoluteUrl(person.path),
+    jobTitle: person.jobTitle ?? undefined,
+    description: person.description ?? undefined,
+    image: person.image ? absoluteUrl(person.image) : undefined,
+    sameAs: person.sameAs,
+    knowsAbout: person.knowsAbout,
+    worksFor: { '@id': ORG_ID },
+  })

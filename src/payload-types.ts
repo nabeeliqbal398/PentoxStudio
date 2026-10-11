@@ -216,7 +216,8 @@ export interface Page {
     | 'industries-hub'
     | 'free-audit'
     | 'cost-estimator'
-    | 'portfolio';
+    | 'portfolio'
+    | 'blog';
   /**
    * Drafted or placeholder content that the client still has to approve.
    */
@@ -2880,6 +2881,41 @@ export interface SiteText {
     faq?: string | null;
     noIndustries?: string | null;
   };
+  blog?: {
+    breadcrumb?: string | null;
+    searchLabel?: string | null;
+    searchPlaceholder?: string | null;
+    searchButton?: string | null;
+    all?: string | null;
+    filterLabel?: string | null;
+    featured?: string | null;
+    latest?: string | null;
+    noResults?: string | null;
+    clear?: string | null;
+    previous?: string | null;
+    next?: string | null;
+    pageOf?: string | null;
+    readTime?: string | null;
+    updated?: string | null;
+    by?: string | null;
+    toc?: string | null;
+    share?: string | null;
+    shareFacebook?: string | null;
+    shareLinkedin?: string | null;
+    shareX?: string | null;
+    shareWhatsapp?: string | null;
+    relatedService?: string | null;
+    relatedPosts?: string | null;
+    aboutAuthor?: string | null;
+    authorPosts?: string | null;
+    categoryEyebrow?: string | null;
+    authorEyebrow?: string | null;
+    rss?: string | null;
+    midCtaHeading?: string | null;
+    midCtaText?: string | null;
+    midCtaButton?: string | null;
+    midCtaUrl?: string | null;
+  };
   portfolio?: {
     breadcrumb?: string | null;
     all?: string | null;
@@ -3385,6 +3421,43 @@ export interface SiteTextSelect<T extends boolean = true> {
         featuredProjects?: T;
         faq?: T;
         noIndustries?: T;
+      };
+  blog?:
+    | T
+    | {
+        breadcrumb?: T;
+        searchLabel?: T;
+        searchPlaceholder?: T;
+        searchButton?: T;
+        all?: T;
+        filterLabel?: T;
+        featured?: T;
+        latest?: T;
+        noResults?: T;
+        clear?: T;
+        previous?: T;
+        next?: T;
+        pageOf?: T;
+        readTime?: T;
+        updated?: T;
+        by?: T;
+        toc?: T;
+        share?: T;
+        shareFacebook?: T;
+        shareLinkedin?: T;
+        shareX?: T;
+        shareWhatsapp?: T;
+        relatedService?: T;
+        relatedPosts?: T;
+        aboutAuthor?: T;
+        authorPosts?: T;
+        categoryEyebrow?: T;
+        authorEyebrow?: T;
+        rss?: T;
+        midCtaHeading?: T;
+        midCtaText?: T;
+        midCtaButton?: T;
+        midCtaUrl?: T;
       };
   portfolio?:
     | T

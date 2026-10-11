@@ -2,6 +2,7 @@ import { LinkJSXConverter, RichText as LexicalRichText, type JSXConvertersFuncti
 import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
 import { collectionPaths } from '@/lib/paths'
+import { type HeadingIds } from '@/lib/toc'
 
 import { Cta } from './Cta'
 
@@ -17,8 +18,22 @@ type BlockProps = { node: { fields: unknown } }
 
 type BlockFields = Record<string, unknown> & { blockType: string }
 
-const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
+type NodeLike = { type?: string; text?: string; children?: NodeLike[] }
+const plain = (node: NodeLike): string => (typeof node.text === 'string' ? node.text : (node.children ?? []).map(plain).join(''))
+
+const makeConverters =
+  (headingIds?: HeadingIds): JSXConvertersFunction =>
+  ({ defaultConverters }) => ({
   ...defaultConverters,
+  // Headings get ids (for the table of contents) when a counter is supplied.
+  ...(headingIds
+    ? {
+        heading: ({ node, nodesToJSX }: { node: { tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'; children: NodeLike[] }; nodesToJSX: (args: { nodes: never }) => React.ReactNode }) => {
+          const Tag = node.tag
+          return <Tag id={headingIds.next(plain(node as NodeLike))}>{nodesToJSX({ nodes: node.children as never })}</Tag>
+        },
+      }
+    : {}),
   ...LinkJSXConverter({
     internalDocToHref: ({ linkNode }) => {
       const { relationTo, value } = linkNode.fields.doc ?? {}
@@ -83,12 +98,20 @@ const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
 
 
 /** Renders Lexical rich text (legal text, About story, long-form service copy). */
-export function RichText({ data, className = '' }: { data?: DefaultTypedEditorState | null; className?: string }) {
+export function RichText({
+  data,
+  className = '',
+  headingIds,
+}: {
+  data?: DefaultTypedEditorState | null
+  className?: string
+  headingIds?: HeadingIds
+}) {
   if (!data?.root?.children?.length) return null
   return (
     <LexicalRichText
       className={`prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-navy prose-a:text-accent ${className}`}
-      converters={converters}
+      converters={makeConverters(headingIds)}
       data={data}
     />
   )
